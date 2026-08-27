@@ -8,6 +8,11 @@ const asyncHandler = require("../middleware/asyncHandler");
 const VALID_SLOTS = ["breakfast", "lunch", "dinner"];
 const VALID_CYCLES = Object.keys(pricing.CYCLE_DAYS);
 
+// Stored (and so displayed, everywhere) in a fixed breakfast->lunch->dinner
+// order regardless of what order the owner happened to tick the checkboxes
+// in — a plan is never "Lunch, Breakfast, Dinner".
+const sortSlots = (slots) => [...slots].sort((a, b) => VALID_SLOTS.indexOf(a) - VALID_SLOTS.indexOf(b));
+
 // ---- Plans (owner manages; anyone logged in can browse active ones) ----
 
 exports.getActivePlans = asyncHandler(async (req, res) => {
@@ -29,12 +34,14 @@ exports.createPlan = asyncHandler(async (req, res) => {
   if (!mealSlots.every((s) => VALID_SLOTS.includes(s))) {
     return res.status(400).json({ error: `meal slots must be from ${VALID_SLOTS.join(", ")}` });
   }
-  const plan = await plans.create({ name, cycle, mealSlots, maxItemsPerMeal: Number(maxItemsPerMeal) || 2 });
+  const plan = await plans.create({ name, cycle, mealSlots: sortSlots(mealSlots), maxItemsPerMeal: Number(maxItemsPerMeal) || 2 });
   res.status(201).json({ plan });
 });
 
 exports.updatePlan = asyncHandler(async (req, res) => {
-  const plan = await plans.update(req.params.id, req.body);
+  const fields = { ...req.body };
+  if (fields.mealSlots) fields.mealSlots = sortSlots(fields.mealSlots);
+  const plan = await plans.update(req.params.id, fields);
   if (!plan) return res.status(404).json({ error: "Plan not found" });
   res.json({ plan });
 });

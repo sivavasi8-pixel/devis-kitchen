@@ -4,8 +4,14 @@ import { api } from "../api";
 import { useAuth } from "../auth/AuthContext";
 
 const CYCLE_LABEL = { daily: "Daily", weekly: "Weekly", monthly: "Monthly" };
+const SLOT_ORDER = ["breakfast", "lunch", "dinner"];
 const SLOT_LABEL = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner" };
+const SLOT_ICON = { breakfast: "🌅", lunch: "☀️", dinner: "🌙" };
 const STATUS_LABEL = { active: "Active", paused: "Paused", cancelled: "Cancelled" };
+
+// Defensive — a plan created before this was fixed server-side may still have
+// slots stored out of order; this keeps the display correct either way.
+const orderedSlots = (slots) => [...slots].sort((a, b) => SLOT_ORDER.indexOf(a) - SLOT_ORDER.indexOf(b));
 
 export default function MealPlans() {
   const { user } = useAuth();
@@ -40,6 +46,8 @@ export default function MealPlans() {
   }, [canSubscribe]);
 
   const selectedPlan = plans && plans.find((p) => p.id === selectedPlanId);
+  const selectedSlots = selectedPlan ? orderedSlots(selectedPlan.mealSlots) : [];
+  const [activeSlot, setActiveSlot] = useState(null);
 
   const selectPlan = (id) => {
     setSelectedPlanId(id);
@@ -47,13 +55,15 @@ export default function MealPlans() {
     setQuote(null);
     setSubscribeError(null);
     setJustSubscribed(null);
+    const plan = plans.find((p) => p.id === id);
+    setActiveSlot(plan ? orderedSlots(plan.mealSlots)[0] : null);
   };
 
   // Live quote — recomputes on every tap, debounced so a quick run of taps
   // doesn't fire a request per tap.
   useEffect(() => {
     if (!selectedPlan) return;
-    const selArray = selectedPlan.mealSlots.map((slot) => ({ slot, itemIds: selections[slot] || [] }));
+    const selArray = selectedSlots.map((slot) => ({ slot, itemIds: selections[slot] || [] }));
     if (!selArray.some((s) => s.itemIds.length > 0)) {
       setQuote(null);
       return;
@@ -86,7 +96,7 @@ export default function MealPlans() {
     }
     setSubscribing(true);
     try {
-      const selArray = selectedPlan.mealSlots.map((slot) => ({ slot, itemIds: selections[slot] || [] }));
+      const selArray = selectedSlots.map((slot) => ({ slot, itemIds: selections[slot] || [] }));
       const { subscription } = await api.createSubscription({
         planId: selectedPlan.id,
         channel,
@@ -184,7 +194,7 @@ export default function MealPlans() {
             onClick={() => selectPlan(plan.id)}
           >
             <p className="mp-plan-name">{plan.name}</p>
-            <p className="mp-plan-meta">{CYCLE_LABEL[plan.cycle]} · {plan.mealSlots.map((s) => SLOT_LABEL[s]).join(" + ")}</p>
+            <p className="mp-plan-meta">{CYCLE_LABEL[plan.cycle]} · {orderedSlots(plan.mealSlots).map((s) => SLOT_LABEL[s]).join(" + ")}</p>
             <p className="mp-plan-limit">Up to {plan.maxItemsPerMeal} items per meal</p>
           </button>
         ))}
@@ -197,57 +207,75 @@ export default function MealPlans() {
 
           <div className="mp-builder-layout">
             <div className="mp-slots">
-              {selectedPlan.mealSlots.map((slot) => (
-                <div key={slot} className="mp-slot">
-                  <p className="mp-slot-title">
-                    {SLOT_LABEL[slot]} <span className="mp-slot-count">{(selections[slot] || []).length}/{selectedPlan.maxItemsPerMeal}</span>
-                  </p>
-                  <div className="mp-item-chips">
-                    {Object.entries(itemsByCategory).map(([cat, catItems]) => (
-                      <div key={cat} className="mp-item-cat-group">
-                        <span className="mp-item-cat-label">{cat}</span>
+              {/* One meal at a time, in a fixed breakfast → lunch → dinner order — showing
+                  the full item catalog three times stacked on top of each other was the
+                  actual problem with the old layout, not just how the chips looked. */}
+              <div className="mp-slot-tabs">
+                {selectedSlots.map((slot) => (
+                  <button
+                    key={slot}
+                    className={`mp-slot-tab${activeSlot === slot ? " active" : ""}`}
+                    onClick={() => setActiveSlot(slot)}
+                  >
+                    <span className="mp-slot-tab-icon">{SLOT_ICON[slot]}</span>
+                    {SLOT_LABEL[slot]}
+                    <span className="mp-slot-tab-count">{(selections[slot] || []).length}/{selectedPlan.maxItemsPerMeal}</span>
+                  </button>
+                ))}
+              </div>
+
+              {activeSlot && (
+                <div className="mp-slot-card">
+                  {Object.entries(itemsByCategory).map(([cat, catItems]) => (
+                    <div key={cat} className="mp-item-cat-group">
+                      <span className="mp-item-cat-label">{cat}</span>
+                      <div className="mp-item-chip-row">
                         {catItems.map((item) => {
-                          const picked = (selections[slot] || []).includes(item.id);
+                          const picked = (selections[activeSlot] || []).includes(item.id);
                           return (
                             <button
                               key={item.id}
                               className={`mp-item-chip${picked ? " picked" : ""}${!item.inStock ? " out" : ""}`}
                               disabled={!item.inStock}
-                              onClick={() => toggleItem(slot, item.id)}
+                              onClick={() => toggleItem(activeSlot, item.id)}
                             >
-                              {item.name} — ₹{item.price}
+                              {picked && <span className="mp-item-check">✓</span>}
+                              {item.name}
+                              <span className="mp-item-chip-price">₹{item.price}</span>
                             </button>
                           );
                         })}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-
-              <label className="mp-field-label">How you'll get it</label>
-              <select value={channel} onChange={(e) => setChannel(e.target.value)} className="field-input">
-                <option value="delivery">Delivery</option>
-                <option value="pickup">Pickup</option>
-              </select>
-              {channel === "delivery" && (
-                <>
-                  <textarea
-                    placeholder="Delivery address" value={deliveryAddress}
-                    onChange={(e) => setDeliveryAddress(e.target.value)} className="field-input" rows={2}
-                  />
-                  <input
-                    type="text" placeholder="Phone (optional)" value={deliveryPhone}
-                    onChange={(e) => setDeliveryPhone(e.target.value)} className="field-input"
-                  />
-                </>
               )}
-              <label className="mp-field-label">Payment</label>
-              <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="field-input">
-                <option value="cash">Cash</option>
-                <option value="upi">UPI</option>
-                <option value="card">Card</option>
-              </select>
+
+              <div className="mp-delivery-card">
+                <label className="mp-field-label">How you'll get it</label>
+                <select value={channel} onChange={(e) => setChannel(e.target.value)} className="field-input">
+                  <option value="delivery">Delivery</option>
+                  <option value="pickup">Pickup</option>
+                </select>
+                {channel === "delivery" && (
+                  <>
+                    <textarea
+                      placeholder="Delivery address" value={deliveryAddress}
+                      onChange={(e) => setDeliveryAddress(e.target.value)} className="field-input" rows={2}
+                    />
+                    <input
+                      type="text" placeholder="Phone (optional)" value={deliveryPhone}
+                      onChange={(e) => setDeliveryPhone(e.target.value)} className="field-input"
+                    />
+                  </>
+                )}
+                <label className="mp-field-label">Payment</label>
+                <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="field-input" style={{ marginBottom: 0 }}>
+                  <option value="cash">Cash</option>
+                  <option value="upi">UPI</option>
+                  <option value="card">Card</option>
+                </select>
+              </div>
             </div>
 
             <aside className="mp-quote-panel">
@@ -331,31 +359,58 @@ export default function MealPlans() {
         .mp-plan-meta { font-size: 12.5px; color: var(--text-secondary); margin: 0 0 4px; }
         .mp-plan-limit { font-size: 11.5px; color: var(--text-muted); margin: 0; }
 
-        .mp-builder { margin-top: 26px; border-top: 1px solid var(--border); padding-top: 20px; }
+        .mp-builder { margin-top: 30px; border-top: 1px solid var(--border); padding-top: 22px; }
         .mp-builder-layout { display: block; }
-        @media (min-width: 860px) { .mp-builder-layout { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: start; } }
+        @media (min-width: 860px) { .mp-builder-layout { display: grid; grid-template-columns: 1.4fr 1fr; gap: 22px; align-items: start; } }
 
-        .mp-slot { margin-bottom: 18px; }
-        .mp-slot-title { font-size: 14px; font-weight: 600; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
-        .mp-slot-count { font-size: 11px; font-weight: 400; color: var(--text-secondary); }
-        .mp-item-cat-group { margin-bottom: 8px; }
-        .mp-item-cat-label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 5px; }
-        .mp-item-chips { }
-        .mp-item-chip {
-          display: inline-block; margin: 0 6px 6px 0; padding: 6px 12px; border-radius: 999px;
-          border: 1px solid var(--border); background: var(--surface-1); font-size: 12.5px; color: var(--text-primary);
+        .mp-slot-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+        .mp-slot-tab {
+          flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+          padding: 11px 10px; border-radius: var(--radius); border: 1.5px solid var(--border);
+          background: var(--surface-1); font-size: 13px; font-weight: 500; color: var(--text-secondary);
+          transition: border-color .12s ease, background .12s ease, color .12s ease;
         }
-        .mp-item-chip.picked { background: var(--green); color: var(--cream); border-color: var(--green); }
-        .mp-item-chip.out { opacity: 0.5; text-decoration: line-through; }
+        .mp-slot-tab-icon { font-size: 15px; }
+        .mp-slot-tab-count { font-size: 10.5px; color: var(--text-muted); }
+        .mp-slot-tab.active { border-color: var(--green); background: var(--green); color: var(--cream); }
+        .mp-slot-tab.active .mp-slot-tab-count { color: rgba(250,248,243,0.75); }
 
+        .mp-slot-card {
+          background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg);
+          padding: 16px 18px; margin-bottom: 16px;
+        }
+        .mp-item-cat-group { margin-bottom: 14px; }
+        .mp-item-cat-group:last-child { margin-bottom: 0; }
+        .mp-item-cat-label { display: block; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gold); margin-bottom: 8px; }
+        .mp-item-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .mp-item-chip {
+          display: inline-flex; align-items: center; gap: 6px; padding: 7px 8px 7px 14px; border-radius: 999px;
+          border: 1.5px solid var(--border); background: var(--surface-0); font-size: 12.5px; color: var(--text-primary);
+          transition: border-color .12s ease, background .12s ease, transform .1s ease;
+        }
+        .mp-item-chip:hover:not(.out) { border-color: var(--border-strong); }
+        .mp-item-chip:active:not(.out) { transform: scale(0.97); }
+        .mp-item-chip-price { color: var(--text-secondary); font-size: 11.5px; background: var(--surface-2); padding: 2px 8px; border-radius: 999px; }
+        .mp-item-chip.picked { background: var(--green); color: var(--cream); border-color: var(--green); }
+        .mp-item-chip.picked .mp-item-chip-price { background: rgba(250,248,243,0.18); color: var(--cream); }
+        .mp-item-check { font-size: 11px; font-weight: 700; }
+        .mp-item-chip.out { opacity: 0.45; text-decoration: line-through; }
+
+        .mp-delivery-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
         .mp-field-label { display: block; font-size: 11.5px; color: var(--text-secondary); margin: 4px 0 4px; }
 
-        .mp-quote-panel { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-top: 20px; }
+        .mp-quote-panel {
+          background: var(--surface-1); border: 1.5px solid var(--gold); border-radius: var(--radius-lg);
+          padding: 18px; margin-top: 20px; box-shadow: 0 4px 18px -8px rgba(0,0,0,0.15);
+        }
         @media (min-width: 860px) { .mp-quote-panel { margin-top: 0; position: sticky; top: 20px; } }
-        .mp-quote-title { font-size: 15px; margin: 0 0 10px; }
-        .mp-quote-row { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--text-secondary); padding: 3px 0; }
+        .mp-quote-title { font-family: var(--font-display); font-size: 16px; margin: 0 0 12px; }
+        .mp-quote-row { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--text-secondary); padding: 4px 0; }
         .mp-quote-row.mp-discount { color: var(--red); }
-        .mp-quote-total { display: flex; justify-content: space-between; font-size: 17px; font-weight: 600; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+        .mp-quote-total {
+          display: flex; justify-content: space-between; align-items: baseline; font-family: var(--font-display);
+          font-size: 20px; font-weight: 700; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border);
+        }
       `}</style>
     </div>
   );
