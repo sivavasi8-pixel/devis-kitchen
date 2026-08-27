@@ -5,6 +5,7 @@
 // Worker just to hold this credential. This app already has an Express
 // server, so the service-account credential lives here instead (see
 // config/firebaseAdmin.js) and there's no relay to run or keep in sync.
+const { getMessaging } = require("firebase-admin/messaging");
 const { getFirebaseApp } = require("../config/firebaseAdmin");
 const pushTokens = require("../data/pushTokens");
 
@@ -17,7 +18,7 @@ async function sendToTokens(tokens, { title, body, data }) {
   const app = getFirebaseApp();
   if (!app) return; // push not configured yet — never blocks the caller
 
-  const messaging = app.messaging();
+  const messaging = getMessaging(app);
   let res;
   try {
     res = await messaging.sendEachForMulticast({

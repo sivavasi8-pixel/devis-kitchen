@@ -29,7 +29,7 @@ function getFirebaseApp() {
 
   try {
     const serviceAccount = JSON.parse(raw);
-    app = admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+    app = admin.initializeApp({ credential: admin.cert(serviceAccount) });
     return app;
   } catch (e) {
     console.error("Failed to initialize Firebase Admin (bad FIREBASE_SERVICE_ACCOUNT?):", e.message);
