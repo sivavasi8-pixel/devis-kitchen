@@ -125,7 +125,7 @@ export default function AdminOrders() {
             {filtered.map((o) => (
               <tr key={o.id}>
                 <td>
-                  #{o.id}<br />
+                  #{o.id}{o.subscriptionId && <span className="admin-sub-badge" title="Auto-generated from an active meal subscription">subscription</span>}<br />
                   <span style={{ color: "var(--a-text-secondary)" }}>{o.customerName}</span>{" "}
                   <Link to={`/receipt/${o.id}`} className="admin-receipt-link">receipt</Link>
                 </td>
@@ -149,6 +149,7 @@ export default function AdminOrders() {
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, flexWrap: "wrap", gap: 6 }}>
               <p style={{ margin: 0, fontSize: 13 }}>
                 #{o.id} · {o.customerName} <Link to={`/receipt/${o.id}`} className="admin-receipt-link">receipt</Link>
+                {o.subscriptionId && <span className="admin-sub-badge" title="Auto-generated from an active meal subscription">subscription</span>}
               </p>
               <span style={{ fontSize: 13, fontWeight: 500 }}>₹{o.total}</span>
             </div>
@@ -179,6 +180,11 @@ export default function AdminOrders() {
         .admin-select-sm { border: 1px solid var(--a-border); border-radius: 6px; padding: 5px 8px; font-size: 12px; background: var(--a-panel); }
         .admin-btn-xs { font-size: 11px; padding: 3px 8px; border: 1px solid var(--a-border); border-radius: 6px; background: var(--a-panel); }
         .admin-receipt-link { font-size: 11px; color: var(--a-green); }
+        .admin-sub-badge {
+          display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 500; letter-spacing: 0.02em;
+          padding: 1px 6px; border-radius: 999px; background: var(--a-green-soft, rgba(46,125,50,0.12)); color: var(--a-green);
+          vertical-align: middle;
+        }
         .admin-link-btn { border: none; background: none; color: var(--a-green); cursor: pointer; font-size: 11px; padding: 0; }
         .admin-link-btn.danger { color: var(--a-danger-text); }
 

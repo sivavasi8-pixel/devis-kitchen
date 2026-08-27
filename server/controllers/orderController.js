@@ -1,7 +1,6 @@
 const orders = require("../data/orders");
-const inventory = require("../data/inventory");
-const recipes = require("../data/recipes");
 const push = require("../services/push");
+const { adjustStockForItems } = require("../services/stock");
 const asyncHandler = require("../middleware/asyncHandler");
 
 const VALID_STATUSES = ["placed", "preparing", "ready", "out_for_delivery", "picked_up", "delivered", "cancelled"];
@@ -16,19 +15,6 @@ const readyBody = (order) => {
   if (order.channel === "delivery") return "Waiting for a rider — won't be long.";
   if (order.channel === "dine_in") return `Coming right up to Table ${order.tableNumber || "—"}.`;
   return "Ready for pickup — swing by anytime.";
-};
-
-// Shared by order creation (deduct) and cancellation (restock) — items need a
-// menuItemId to match a recipe; a missing recipe or id is a silent no-op for that line.
-const adjustStockForItems = async (items, direction) => {
-  const adjust = direction === "deduct" ? inventory.deduct : inventory.restock;
-  for (const item of items) {
-    if (!item.menuItemId) continue;
-    const ingredients = await recipes.getForMenuItem(item.menuItemId);
-    for (const ing of ingredients) {
-      await adjust(ing.inventoryId, ing.qtyPerUnit * (item.qty || 1));
-    }
-  }
 };
 
 exports.getOrders = asyncHandler(async (req, res) => {

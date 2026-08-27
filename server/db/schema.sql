@@ -279,3 +279,15 @@ create table if not exists subscription_meal_selections (
   order_id integer references orders(id),
   unique (subscription_id, meal_date, meal_slot)
 );
+
+-- Added after `orders` and `subscriptions` both exist (orders is declared
+-- earlier in this file, so this can't be an inline column on that create
+-- table like every other FK here — subscriptions doesn't exist yet at that
+-- point in a fresh install). Tags an order that
+-- server/services/subscriptionMaterializer.js auto-generated from a
+-- subscriber's item template; null for every regular one-off order.
+-- on delete set null, not the default restrict — a subscription is never
+-- actually hard-deleted (only its status changes), but this keeps any future
+-- admin cleanup from being blocked by its own historical orders.
+alter table orders add column if not exists subscription_id integer references subscriptions(id) on delete set null;
+create index if not exists idx_orders_subscription_id on orders(subscription_id);

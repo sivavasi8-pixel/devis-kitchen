@@ -16,6 +16,7 @@ const mapRow = (r) =>
     riderId: r.rider_id,
     riderName: r.rider_name || undefined, // present only when joined
     tableNumber: r.table_number,
+    subscriptionId: r.subscription_id, // set only for an order the subscription scheduler auto-generated
     // Friendly single-field summary of "where/when" for admin pages built
     // around the bakery's pickup-only model — dine-in shows the table,
     // delivery shows the address, pickup just says "Pickup".
@@ -75,13 +76,14 @@ exports.create = async ({
   paymentStatus,
   deliveryAddress,
   deliveryPhone,
-  tableNumber
+  tableNumber,
+  subscriptionId
 }) => {
   const { rows } = await pool.query(
     `insert into orders
        (customer_name, customer_id, items, total, channel, payment_method, payment_status,
-        delivery_address, delivery_phone, table_number)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        delivery_address, delivery_phone, table_number, subscription_id)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      returning *`,
     [
       customerName,
@@ -93,7 +95,8 @@ exports.create = async ({
       paymentStatus,
       deliveryAddress || null,
       deliveryPhone || null,
-      tableNumber || null
+      tableNumber || null,
+      subscriptionId || null
     ]
   );
   return exports.getById(rows[0].id);

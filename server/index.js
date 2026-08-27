@@ -62,3 +62,12 @@ app.listen(PORT, () => {
   const serving = fs.existsSync(clientDist) ? "API + built frontend" : "API only (no client/dist build found)";
   console.log(`Devi's Kitchen API running on http://localhost:${PORT} — ${serving} (${mode})`);
 });
+
+// Turns each active subscriber's item template into real daily orders, and
+// rolls a subscription into its next cycle once the current one runs out —
+// see server/services/subscriptionMaterializer.js. Skipped with no
+// DATABASE_URL so a config-less local run doesn't spam connection errors
+// every hour.
+if (process.env.DATABASE_URL) {
+  require("./services/subscriptionScheduler").start();
+}
