@@ -9,7 +9,11 @@ const BASE_CATEGORIES = ["mains", "breads", "starters", "desserts", "beverages",
 const specialCategory = { value: "special", label: "⭐ Today's special (not on regular menu)" };
 const NEW_CATEGORY_VALUE = "__new__";
 
-const emptyForm = { name: "", category: "mains", price: "", unit: "", description: "" };
+const emptyForm = { name: "", category: "mains", price: "", unit: "", description: "", prepMinutes: "" };
+
+// Same convention as price (blank/null = a sensible default) — no prep time
+// set means "ready now", a number means "~N min" before it's ready.
+const prepTimeLabel = (item) => (item.prepMinutes ? `~${item.prepMinutes} min` : "Ready now");
 const MAX_GALLERY_IMAGES = 4;
 
 function RecipeEditor({ item, inventory, onClose }) {
@@ -199,7 +203,7 @@ function MenuListRow({ item, ...actionProps }) {
             <StatusPills item={item} />
           </div>
           <p className="menu-row-meta">
-            {item.category} · {item.price ? `₹${item.price}` : "made to order"} / {item.unit}
+            {item.category} · {item.price ? `₹${item.price}` : "made to order"} / {item.unit} · {prepTimeLabel(item)}
             {item.galleryImages.length > 0 && ` · ${item.galleryImages.length} extra photo${item.galleryImages.length > 1 ? "s" : ""}`}
           </p>
         </div>
@@ -223,7 +227,7 @@ function MenuGridCard({ item, ...actionProps }) {
         </div>
         <div className="menu-grid-card-tags"><StatusPills item={item} /></div>
         <p className="menu-row-meta">
-          {item.price ? `₹${item.price} / ${item.unit}` : `made to order / ${item.unit}`}
+          {item.price ? `₹${item.price} / ${item.unit}` : `made to order / ${item.unit}`} · {prepTimeLabel(item)}
         </p>
         <MenuItemActions item={item} {...actionProps} />
       </div>
@@ -285,7 +289,14 @@ export default function AdminMenu() {
 
   const startEdit = (item) => {
     setEditingId(item.id);
-    setForm({ name: item.name, category: item.category, price: item.price ?? "", unit: item.unit, description: item.description || "" });
+    setForm({
+      name: item.name,
+      category: item.category,
+      price: item.price ?? "",
+      unit: item.unit,
+      description: item.description || "",
+      prepMinutes: item.prepMinutes ?? ""
+    });
     setImageFile(null);
     setFormError(null);
   };
@@ -308,6 +319,7 @@ export default function AdminMenu() {
       fd.append("price", form.price);
       fd.append("unit", form.unit);
       fd.append("description", form.description);
+      fd.append("prepMinutes", form.prepMinutes);
       if (imageFile) fd.append("image", imageFile);
 
       if (editingId) {
@@ -490,6 +502,7 @@ export default function AdminMenu() {
           )}
           <input type="number" step="0.01" className="admin-search" placeholder="Price (leave blank for made-to-order)" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} style={{ marginBottom: 8 }} />
           <input className="admin-search" placeholder="Unit (e.g. plate, piece, kg)" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} style={{ marginBottom: 8 }} required />
+          <input type="number" min="0" step="1" className="admin-search" placeholder="Prep time in minutes (leave blank if ready now)" value={form.prepMinutes} onChange={(e) => setForm({ ...form, prepMinutes: e.target.value })} style={{ marginBottom: 8 }} />
           <textarea className="admin-search" placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} style={{ marginBottom: 10, resize: "vertical" }} />
           <label className="admin-photo-choose">
             <i className="ti ti-photo" aria-hidden="true" />

@@ -58,7 +58,8 @@ create table if not exists menu_items (
   spice_level text,                -- 'mild' | 'medium' | 'hot', nullable
   is_special boolean not null default false,
   special_until timestamptz,
-  is_popular boolean not null default false
+  is_popular boolean not null default false,
+  prep_minutes integer -- null/0 means "ready now"; a number means "~N min" before it's ready
 );
 
 create table if not exists menu_item_images (

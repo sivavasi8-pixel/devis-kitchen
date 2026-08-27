@@ -16,6 +16,11 @@ const CATEGORY_META = {
   custom: { label: "Custom order", icon: "✏️", tone: "ph-custom" }
 };
 const FALLBACK_CATEGORY_META = { icon: "🍽️", tone: "ph-fallback" };
+
+// Same convention as price (blank/null = a sensible default) — no prep time
+// set means the kitchen already has it ready, a number means "~N min" before
+// it's ready. Matches the label the owner sees in Menu admin.
+const prepTimeLabel = (item) => (item.prepMinutes ? `~${item.prepMinutes} min` : "Ready now");
 const BASE_CATEGORY_ORDER = ["mains", "breads", "starters", "desserts", "beverages", "custom"];
 
 const paymentOptions = [
@@ -151,7 +156,10 @@ function ProductCard({ item, isFav, onToggleFav, onAdd }) {
         </div>
         <p className="product-desc">{item.description}</p>
         <div className="product-footer">
-          <span className="product-price">{item.price ? `₹${item.price} / ${item.unit}` : "made to order"}</span>
+          <div className="product-price-block">
+            <span className="product-price">{item.price ? `₹${item.price} / ${item.unit}` : "made to order"}</span>
+            <span className="product-prep">{prepTimeLabel(item)}</span>
+          </div>
           {!item.inStock ? (
             <span className="sold-out">Sold out</span>
           ) : (
@@ -345,7 +353,10 @@ export default function Order() {
                 <p className="special-name">{item.name}</p>
                 <p className="special-desc">{item.description}</p>
                 <div className="special-footer">
-                  <span className="special-price">{item.price ? `₹${item.price} / ${item.unit}` : "made to order"}</span>
+                  <div className="product-price-block">
+                    <span className="special-price">{item.price ? `₹${item.price} / ${item.unit}` : "made to order"}</span>
+                    <span className="product-prep">{prepTimeLabel(item)}</span>
+                  </div>
                   {!item.inStock ? (
                     <span className="sold-out">Sold out</span>
                   ) : (
@@ -675,7 +686,9 @@ export default function Order() {
         .product-name { margin: 0; font-size: 13px; font-weight: 500; }
         .product-desc { margin: 3px 0 10px; font-size: 12px; color: var(--text-secondary); }
         .product-footer { display: flex; justify-content: space-between; align-items: center; }
+        .product-price-block { display: flex; flex-direction: column; gap: 1px; }
         .product-price { font-size: 13px; font-weight: 500; }
+        .product-prep { font-size: 10.5px; color: var(--text-muted); }
         .sold-out { font-size: 12px; color: var(--red); }
         .btn-add {
           padding: 5px 12px; font-size: 12px; font-weight: 600; border: 1px solid var(--green);

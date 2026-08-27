@@ -23,6 +23,7 @@ const mapRow = (row) =>
     spiceLevel: row.spice_level,
     isSpecial: row.is_special && (!row.special_until || new Date(row.special_until) > new Date()),
     isPopular: row.is_popular,
+    prepMinutes: row.prep_minutes === null ? null : Number(row.prep_minutes),
     // Extra gallery photos, in order — cover image (imageUrl above) is separate
     // and always shown first by the client; this is purely the "more photos" set.
     galleryImages: (row.gallery || []).map((g) => `/api/menu/${row.id}/images/${g.id}`)
@@ -60,11 +61,11 @@ exports.getImage = async (id) => {
   return { data: rows[0].image_data, mime: rows[0].image_mime || "image/jpeg" };
 };
 
-exports.create = async ({ name, category, price, unit, description, isVeg, spiceLevel, imageBuffer, imageMime }) => {
+exports.create = async ({ name, category, price, unit, description, isVeg, spiceLevel, prepMinutes, imageBuffer, imageMime }) => {
   const { rows } = await pool.query(
-    `insert into menu_items (name, category, price, unit, description, is_veg, spice_level, image_data, image_mime)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning id`,
-    [name, category, price, unit || "plate", description || null, isVeg !== false, spiceLevel || null, imageBuffer || null, imageMime || null]
+    `insert into menu_items (name, category, price, unit, description, is_veg, spice_level, prep_minutes, image_data, image_mime)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning id`,
+    [name, category, price, unit || "plate", description || null, isVeg !== false, spiceLevel || null, prepMinutes ?? null, imageBuffer || null, imageMime || null]
   );
   return exports.getById(rows[0].id);
 };
@@ -85,7 +86,8 @@ exports.update = async (id, fields) => {
     spiceLevel: "spice_level",
     isSpecial: "is_special",
     specialUntil: "special_until",
-    isPopular: "is_popular"
+    isPopular: "is_popular",
+    prepMinutes: "prep_minutes"
   };
 
   for (const [key, col] of Object.entries(map)) {

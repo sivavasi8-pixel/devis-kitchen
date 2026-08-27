@@ -13,8 +13,13 @@ exports.getImage = asyncHandler(async (req, res) => {
   res.send(img.data);
 });
 
+// Same "blank means the sensible default" convention as price (blank price =
+// made to order) — blank/0 prep time means "ready now", so the owner never
+// has to type a 0.
+const parseMinutes = (v) => (v === "" || v === undefined || v === null ? null : Number(v));
+
 exports.createMenuItem = asyncHandler(async (req, res) => {
-  const { name, category, price, unit, description, isVeg, spiceLevel } = req.body;
+  const { name, category, price, unit, description, isVeg, spiceLevel, prepMinutes } = req.body;
   if (!name || !category || !unit) {
     return res.status(400).json({ error: "name, category and unit are required" });
   }
@@ -27,6 +32,7 @@ exports.createMenuItem = asyncHandler(async (req, res) => {
     description,
     isVeg: isVeg === "false" ? false : isVeg,
     spiceLevel,
+    prepMinutes: parseMinutes(prepMinutes),
     imageBuffer: req.file ? req.file.buffer : null,
     imageMime: req.file ? req.file.mimetype : null
   });
@@ -37,6 +43,7 @@ exports.updateMenuItem = asyncHandler(async (req, res) => {
   const fields = { ...req.body };
   if (fields.price === "") fields.price = null;
   else if (fields.price !== undefined) fields.price = Number(fields.price);
+  if (fields.prepMinutes !== undefined) fields.prepMinutes = parseMinutes(fields.prepMinutes);
   if (req.file) {
     fields.imageBuffer = req.file.buffer;
     fields.imageMime = req.file.mimetype;
