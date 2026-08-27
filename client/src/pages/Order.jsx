@@ -181,7 +181,7 @@ export default function Order() {
   const [activeOrder, setActiveOrder] = useState(null);
   const [favorites, setFavorites] = useState(loadFavorites);
   const { user } = useAuth();
-  const { cart, addToCart, addCustomItem, clearCart, total, count: cartCount } = useCart();
+  const { cart, addToCart, addCustomItem, updateQty, removeFromCart, clearCart, total, count: cartCount } = useCart();
   const canOrder = user && user.role === "customer";
   const cartRef = useRef(null);
 
@@ -417,10 +417,24 @@ export default function Order() {
                 {cart.map((c) => (
                   <div key={c.id} className="cart-row">
                     <div className="cart-row-main">
-                      <span>{c.name}{c.qty > 1 ? ` x${c.qty}` : ""}</span>
+                      <span>{c.name}</span>
                       <span>₹{c.price * c.qty}</span>
                     </div>
                     {c.note && <p className="cart-row-note">{c.note}</p>}
+                    <div className="cart-row-controls">
+                      {c.note ? (
+                        // A custom/made-to-order line is priced as one unit for that
+                        // specific weight/spec — "x2" wouldn't mean what it does for a
+                        // regular item, so this gets Remove instead of a qty stepper.
+                        <button onClick={() => removeFromCart(c.id)} className="cart-remove-btn">Remove</button>
+                      ) : (
+                        <div className="qty-controls">
+                          <button onClick={() => updateQty(c.id, c.qty - 1)} aria-label={`Decrease ${c.name} quantity`}>−</button>
+                          <span>{c.qty}</span>
+                          <button onClick={() => updateQty(c.id, c.qty + 1)} aria-label={`Increase ${c.name} quantity`}>+</button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -672,6 +686,19 @@ export default function Order() {
         .cart-row:last-child { border-bottom: none; }
         .cart-row-main { display: flex; justify-content: space-between; }
         .cart-row-note { margin: 3px 0 0; font-size: 11px; color: var(--text-secondary); }
+        .cart-row-controls { display: flex; justify-content: flex-end; margin-top: 6px; }
+        .qty-controls { display: flex; align-items: center; gap: 10px; }
+        .qty-controls button {
+          width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border-strong);
+          background: var(--surface-1); color: var(--green); font-size: 14px; line-height: 1;
+          display: flex; align-items: center; justify-content: center; padding: 0;
+        }
+        .qty-controls button:hover { background: var(--green-tint); }
+        .qty-controls span { font-size: 12.5px; min-width: 14px; text-align: center; }
+        .cart-remove-btn {
+          background: none; border: none; padding: 0; font-size: 11.5px;
+          color: var(--red); text-decoration: underline; cursor: pointer;
+        }
 
         .field-input {
           width: 100%; padding: 8px 10px; font-size: 13px; border: 1px solid var(--border);

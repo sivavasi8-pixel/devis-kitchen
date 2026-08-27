@@ -23,13 +23,21 @@ export function CartProvider({ children }) {
   // custom orders for the same base item should never merge into one row.
   const addCustomItem = (entry) => setCart((prev) => [...prev, entry]);
 
+  // Keyed by cart row id (== menuItemId for a regular item, a unique
+  // "custom-..." id for a custom line) — dropping to 0 removes the row
+  // outright rather than leaving a zero-qty line sitting in the cart.
+  const updateQty = (id, qty) =>
+    setCart((prev) => (qty <= 0 ? prev.filter((c) => c.id !== id) : prev.map((c) => (c.id === id ? { ...c, qty } : c))));
+
+  const removeFromCart = (id) => setCart((prev) => prev.filter((c) => c.id !== id));
+
   const clearCart = () => setCart([]);
 
   const total = cart.reduce((sum, c) => sum + (c.price || 0) * c.qty, 0);
   const count = cart.reduce((n, c) => n + c.qty, 0);
 
   return (
-    <CartContext.Provider value={{ cart, setCart, addToCart, addCustomItem, clearCart, total, count }}>
+    <CartContext.Provider value={{ cart, setCart, addToCart, addCustomItem, updateQty, removeFromCart, clearCart, total, count }}>
       {children}
     </CartContext.Provider>
   );
