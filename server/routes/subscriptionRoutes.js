@@ -29,5 +29,6 @@ router.post("/", requireAuth, requireRole("customer"), ctrl.createSubscription);
 router.get("/mine", requireAuth, requireRole("customer"), ctrl.getMySubscriptions);
 router.get("/", requireAuth, requireRole("owner", "staff"), ctrl.getAllSubscriptions);
 router.patch("/:id/status", requireAuth, ctrl.updateSubscriptionStatus); // ownership checked in the controller
+router.patch("/:id/payment", requireAuth, requireRole("owner", "staff"), ctrl.updateSubscriptionPayment);
 
 module.exports = router;

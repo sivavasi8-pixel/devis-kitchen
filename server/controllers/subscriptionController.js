@@ -14,6 +14,29 @@ const VALID_CYCLES = Object.keys(pricing.CYCLE_DAYS);
 // in — a plan is never "Lunch, Breakfast, Dinner".
 const sortSlots = (slots) => [...slots].sort((a, b) => VALID_SLOTS.indexOf(a) - VALID_SLOTS.indexOf(b));
 
+const MAX_ITEMS_PER_MEAL_CAP = 10;
+
+// Shared by create (everything required) and update (only whatever fields
+// are actually present) — previously update skipped validation entirely and
+// let a bad value hit the database's own CHECK constraint as a raw 500.
+function validatePlanFields(fields, { partial }) {
+  if (!partial || fields.cycle !== undefined) {
+    if (!VALID_CYCLES.includes(fields.cycle)) return `cycle must be one of ${VALID_CYCLES.join(", ")}`;
+  }
+  if (!partial || fields.mealSlots !== undefined) {
+    if (!Array.isArray(fields.mealSlots) || fields.mealSlots.length === 0) return "at least one meal slot is required";
+    if (!fields.mealSlots.every((s) => VALID_SLOTS.includes(s))) return `meal slots must be from ${VALID_SLOTS.join(", ")}`;
+  }
+  if (!partial || fields.maxItemsPerMeal !== undefined) {
+    const n = Number(fields.maxItemsPerMeal);
+    if (!Number.isInteger(n) || n < 1 || n > MAX_ITEMS_PER_MEAL_CAP) {
+      return `maxItemsPerMeal must be a whole number between 1 and ${MAX_ITEMS_PER_MEAL_CAP}`;
+    }
+  }
+  if (!partial && !fields.name) return "name is required";
+  return null;
+}
+
 // ---- Plans (owner manages; anyone logged in can browse active ones) ----
 
 exports.getActivePlans = asyncHandler(async (req, res) => {
@@ -26,29 +49,40 @@ exports.getAllPlans = asyncHandler(async (req, res) => {
 
 exports.createPlan = asyncHandler(async (req, res) => {
   const { name, cycle, mealSlots, maxItemsPerMeal } = req.body;
-  if (!name || !cycle || !Array.isArray(mealSlots) || mealSlots.length === 0) {
-    return res.status(400).json({ error: "name, cycle, and at least one meal slot are required" });
-  }
-  if (!VALID_CYCLES.includes(cycle)) {
-    return res.status(400).json({ error: `cycle must be one of ${VALID_CYCLES.join(", ")}` });
-  }
-  if (!mealSlots.every((s) => VALID_SLOTS.includes(s))) {
-    return res.status(400).json({ error: `meal slots must be from ${VALID_SLOTS.join(", ")}` });
-  }
-  const plan = await plans.create({ name, cycle, mealSlots: sortSlots(mealSlots), maxItemsPerMeal: Number(maxItemsPerMeal) || 2 });
+  const error = validatePlanFields({ name, cycle, mealSlots, maxItemsPerMeal }, { partial: false });
+  if (error) return res.status(400).json({ error });
+  const plan = await plans.create({ name, cycle, mealSlots: sortSlots(mealSlots), maxItemsPerMeal: Number(maxItemsPerMeal) });
   res.status(201).json({ plan });
 });
 
 exports.updatePlan = asyncHandler(async (req, res) => {
   const fields = { ...req.body };
+  const error = validatePlanFields(fields, { partial: true });
+  if (error) return res.status(400).json({ error });
   if (fields.mealSlots) fields.mealSlots = sortSlots(fields.mealSlots);
+  if (fields.maxItemsPerMeal !== undefined) fields.maxItemsPerMeal = Number(fields.maxItemsPerMeal);
   const plan = await plans.update(req.params.id, fields);
   if (!plan) return res.status(404).json({ error: "Plan not found" });
   res.json({ plan });
 });
 
 exports.deletePlan = asyncHandler(async (req, res) => {
-  await plans.remove(req.params.id);
+  try {
+    await plans.remove(req.params.id);
+  } catch (err) {
+    // Postgres 23503 = foreign_key_violation — someone (even a cancelled
+    // subscriber) still references this plan. The confirm dialog used to
+    // claim deleting "won't affect anyone already subscribed", which was
+    // simply wrong: it doesn't warn and skip them, it fails outright.
+    // Deactivating (the Active/Inactive toggle) is the actual way to stop
+    // new signups without touching historical subscriber records.
+    if (err.code === "23503") {
+      return res.status(409).json({
+        error: "This plan has subscribers (including past/cancelled ones) and can't be deleted — set it to Inactive instead to stop new signups."
+      });
+    }
+    throw err;
+  }
   res.status(204).end();
 });
 
@@ -127,6 +161,19 @@ async function buildQuote({ planId, channel, selections }) {
   ]);
   const itemsById = {};
   eligibleItems.forEach((it) => { itemsById[it.id] = it; });
+
+  // Client-side already disables a sold-out item's chip, but that's cosmetic
+  // — nothing previously stopped a direct API call from picking one anyway.
+  for (const sel of cleanSelections) {
+    for (const itemId of sel.itemIds || []) {
+      const item = itemsById[itemId];
+      if (item && !item.inStock) {
+        const err = new Error(`${item.name} is currently sold out — pick something else for ${sel.slot}`);
+        err.status = 400;
+        throw err;
+      }
+    }
+  }
 
   const quote = pricing.computeQuote({
     cycle: plan.cycle,
@@ -263,5 +310,18 @@ exports.updateSubscriptionStatus = asyncHandler(async (req, res) => {
     });
   }
 
+  res.json({ subscription });
+});
+
+// A cash subscription's paymentStatus was previously set once at signup
+// and could never change — no equivalent of orderController's "Mark paid"
+// existed at all for subscriptions.
+exports.updateSubscriptionPayment = asyncHandler(async (req, res) => {
+  const { paymentStatus } = req.body;
+  if (!["unpaid", "paid"].includes(paymentStatus)) {
+    return res.status(400).json({ error: "paymentStatus must be 'unpaid' or 'paid'" });
+  }
+  const subscription = await subscriptions.updatePaymentStatus(req.params.id, paymentStatus);
+  if (!subscription) return res.status(404).json({ error: "Subscription not found" });
   res.json({ subscription });
 });

@@ -145,8 +145,27 @@ export default function MealPlansPanel() {
     }
   };
 
+  // Was entirely missing — a cash subscription's paymentStatus was set once
+  // at signup and had no way to ever change, unlike the equivalent "Mark
+  // paid" action every regular order already has.
+  const markSubPaid = async (sub) => {
+    setSubActionId(sub.id);
+    setActionError(null);
+    try {
+      await api.updateSubscriptionPayment(sub.id, "paid");
+      await load();
+    } catch (err) {
+      setActionError(err.message);
+    } finally {
+      setSubActionId(null);
+    }
+  };
+
   const handleDelete = async (plan) => {
-    if (!confirm(`Delete "${plan.name}"? This won't affect anyone already subscribed.`)) return;
+    // Deleting fails outright if anyone (even a past/cancelled subscriber)
+    // still references this plan — the server explains that clearly if it
+    // happens, so this just needs to stop overpromising what delete does.
+    if (!confirm(`Delete "${plan.name}"? This can't be undone.`)) return;
     setActionError(null);
     try {
       await api.deleteSubscriptionPlan(plan.id);
@@ -315,6 +334,11 @@ export default function MealPlansPanel() {
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "wrap" }}>
               <span className={`mp-sub-status mp-sub-status-${sub.status}`}>{STATUS_LABEL[sub.status]}</span>
+              {sub.paymentStatus !== "paid" && (
+                <button onClick={() => markSubPaid(sub)} disabled={subActionId === sub.id} className="admin-btn-xs">
+                  {subActionId === sub.id ? "…" : "Mark paid"}
+                </button>
+              )}
               {sub.status === "active" && (
                 <button onClick={() => changeSubStatus(sub, "paused")} disabled={subActionId === sub.id} className="admin-btn-xs">Pause</button>
               )}

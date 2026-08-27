@@ -115,5 +115,7 @@ export const api = {
   getMySubscriptions: () => request("/subscriptions/mine"),
   getAllSubscriptions: () => request("/subscriptions"),
   updateSubscriptionStatus: (id, status) =>
-    request(`/subscriptions/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) })
+    request(`/subscriptions/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),
+  updateSubscriptionPayment: (id, paymentStatus) =>
+    request(`/subscriptions/${id}/payment`, { method: "PATCH", body: JSON.stringify({ paymentStatus }) })
 };
