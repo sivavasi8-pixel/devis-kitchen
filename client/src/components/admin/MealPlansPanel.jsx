@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../api";
+import { useAuth } from "../../auth/AuthContext";
 import { ListPanel, ListRow, StatGrid, StatCard } from "./AdminUI";
 
 const CYCLES = ["daily", "weekly", "monthly"];
@@ -24,6 +25,8 @@ const emptyPlanForm = { name: "", cycle: "weekly", mealSlots: ["lunch"], maxItem
 // plus the two global settings that actually drive pricing: discount per
 // cycle length, and the flat per-day delivery fee.
 export default function MealPlansPanel() {
+  const { user } = useAuth();
+  const isOwner = user?.role === "owner";
   const [plans, setPlans] = useState(null);
   const [settings, setSettings] = useState(null);
   const [subscriptions, setSubscriptions] = useState(null);
@@ -159,6 +162,8 @@ export default function MealPlansPanel() {
     <div>
       {actionError && <p style={{ fontSize: 13, color: "var(--a-danger-text)", marginBottom: 14 }}>{actionError}</p>}
 
+      {isOwner && (
+      <>
       <div className="admin-two-col" style={{ marginBottom: 18 }}>
         <div className="admin-form-panel">
           <p className="admin-section-title">Discount per cycle length</p>
@@ -199,7 +204,7 @@ export default function MealPlansPanel() {
         </div>
       </div>
 
-      <div className="admin-two-col">
+      <div className="admin-two-col" style={{ marginBottom: 20 }}>
         <div>
           <p className="admin-section-title">Plans</p>
           <ListPanel>
@@ -256,8 +261,10 @@ export default function MealPlansPanel() {
           </button>
         </form>
       </div>
+      </>
+      )}
 
-      <p className="admin-section-title" style={{ marginTop: 20 }}>Subscribers</p>
+      <p className="admin-section-title">Subscribers</p>
       <StatGrid columns={3}>
         <StatCard label="Active subscriptions" value={activeSubs.length} />
         <StatCard label="Recurring revenue" value={`₹${recurringRevenue.toLocaleString()}`} sub="per cycle, active only" />

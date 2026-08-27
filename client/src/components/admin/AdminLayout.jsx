@@ -13,6 +13,10 @@ const allNavItems = [
   { to: "/orders", label: "Orders", icon: "ti-clipboard-list" },
   { to: "/inventory", label: "Inventory", icon: "ti-package" },
   { to: "/staff", label: "Staff", icon: "ti-users" },
+  // Not ownerOnly — staff can already view/pause/cancel subscribers via the
+  // API; MealPlansPanel itself gates the owner-only pieces (plan creation,
+  // discount tiers, delivery fee) internally.
+  { to: "/meal-plans-admin", label: "Meal Plans", icon: "ti-calendar" },
   { to: "/menu-admin", label: "Menu", icon: "ti-tools-kitchen-2", ownerOnly: true },
   { to: "/reports", label: "Reports", icon: "ti-chart-bar", ownerOnly: true }
 ];

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import { AdminPage, ListPanel } from "../components/admin/AdminUI";
-import MealPlansPanel from "../components/admin/MealPlansPanel";
 
 // The known baseline categories, kept in a fixed display order so tabs don't
 // jump around as items are added/removed. Anything else (including brand-new
@@ -250,9 +249,6 @@ export default function AdminMenu() {
 
   const [view, setView] = useState("list");
   const [activeCategory, setActiveCategory] = useState(null);
-  // Not a real category — a second panel entirely (plans, discount tiers,
-  // delivery fee), swapped in for the usual item list/form below.
-  const [showMealPlans, setShowMealPlans] = useState(false);
   const [pendingNewCategories, setPendingNewCategories] = useState([]);
   const [showNewCategoryModal, setShowNewCategoryModal] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -426,42 +422,31 @@ export default function AdminMenu() {
           {categoryList.map((c) => (
             <button
               key={c}
-              className={`menu-cat-tab${!showMealPlans && c === activeCategory ? " active" : ""}`}
-              onClick={() => { setShowMealPlans(false); setActiveCategory(c); }}
+              className={`menu-cat-tab${c === activeCategory ? " active" : ""}`}
+              onClick={() => setActiveCategory(c)}
             >
               {c === specialCategory.value ? "⭐ Special" : c} · {items.filter((m) => m.category === c).length}
             </button>
           ))}
+        </div>
+        <div className="menu-view-toggle">
           <button
-            className={`menu-cat-tab${showMealPlans ? " active" : ""}`}
-            onClick={() => setShowMealPlans(true)}
+            className={`menu-view-btn${view === "list" ? " active" : ""}`}
+            onClick={() => setView("list")}
+            aria-label="List view"
           >
-            📅 Meal Plans
+            <i className="ti ti-list" aria-hidden="true" />
+          </button>
+          <button
+            className={`menu-view-btn${view === "card" ? " active" : ""}`}
+            onClick={() => setView("card")}
+            aria-label="Card view"
+          >
+            <i className="ti ti-layout-grid" aria-hidden="true" />
           </button>
         </div>
-        {!showMealPlans && (
-          <div className="menu-view-toggle">
-            <button
-              className={`menu-view-btn${view === "list" ? " active" : ""}`}
-              onClick={() => setView("list")}
-              aria-label="List view"
-            >
-              <i className="ti ti-list" aria-hidden="true" />
-            </button>
-            <button
-              className={`menu-view-btn${view === "card" ? " active" : ""}`}
-              onClick={() => setView("card")}
-              aria-label="Card view"
-            >
-              <i className="ti ti-layout-grid" aria-hidden="true" />
-            </button>
-          </div>
-        )}
       </div>
 
-      {showMealPlans ? (
-        <MealPlansPanel />
-      ) : (
       <div className="admin-two-col">
         <div>
           {itemsInActiveCategory.length === 0 && (
@@ -533,7 +518,6 @@ export default function AdminMenu() {
           </div>
         </form>
       </div>
-      )}
 
       {showNewCategoryModal && (
         <div className="menu-modal-scrim" onClick={cancelNewCategory}>

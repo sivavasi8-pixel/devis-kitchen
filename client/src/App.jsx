@@ -17,6 +17,7 @@ import Receipt from "./pages/Receipt";
 import Orders from "./pages/Orders";
 import Rider from "./pages/Rider";
 import MealPlans from "./pages/MealPlans";
+import MealPlansAdmin from "./pages/MealPlansAdmin";
 
 export default function App() {
   return (
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="/orders" element={<Orders />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/staff" element={<Staff />} />
+        <Route path="/meal-plans-admin" element={<MealPlansAdmin />} />
         <Route
           path="/menu-admin"
           element={
