@@ -314,6 +314,23 @@ export default function MealPlansPanel() {
       </ListPanel>
 
       <style>{`
+        /* This component used to only ever render nested inside MenuAdmin.jsx,
+           which happened to define all six of these classes in its own <style>
+           block — none of them are real globals in admin-theme.css. Now that
+           this is its own top-level page, they have to be defined here too, or
+           every input/button/panel on this page renders as unstyled browser
+           defaults (exactly what produced the broken "Add a plan" layout).
+           Values copied verbatim from MenuAdmin.jsx so this still matches the
+           rest of the admin UI. */
+        .admin-section-title { font-size: 14px; font-weight: 500; margin-bottom: 10px; }
+        .admin-two-col { display: grid; grid-template-columns: 1fr; gap: 18px; }
+        @media (min-width: 900px) { .admin-two-col { grid-template-columns: 1.5fr 1fr; } }
+        .admin-search { width: 100%; border: 1px solid var(--a-border); border-radius: 6px; padding: 8px 12px; font-size: 13px; font-family: var(--font-body); box-sizing: border-box; display: block; }
+        .admin-form-panel { background: var(--a-panel); border: 1px solid var(--a-border); border-radius: var(--a-radius); padding: 16px; align-self: start; }
+        .admin-btn-primary { padding: 10px; background: var(--a-green); color: #fff; border: none; border-radius: 6px; font-size: 13px; width: 100%; box-sizing: border-box; }
+        .admin-btn-xs { border: 1px solid var(--a-border); background: var(--a-panel); border-radius: 6px; padding: 5px 10px; font-size: 11.5px; white-space: nowrap; color: var(--a-text-secondary); }
+        .admin-btn-xs.danger { color: var(--a-danger-text); }
+
         .mp-hint { font-size: 11.5px; color: var(--a-text-secondary); margin: 0 0 12px; }
         .mp-tier-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
         .mp-tier-row:last-child { margin-bottom: 0; }
