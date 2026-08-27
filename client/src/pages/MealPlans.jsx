@@ -13,6 +13,16 @@ const STATUS_LABEL = { active: "Active", paused: "Paused", cancelled: "Cancelled
 // slots stored out of order; this keeps the display correct either way.
 const orderedSlots = (slots) => [...slots].sort((a, b) => SLOT_ORDER.indexOf(a) - SLOT_ORDER.indexOf(b));
 
+// sub.selections (resolved server-side) is [{ slot, items: [{name}] }] — what
+// was actually picked, so "My subscriptions" isn't just a plan name + price.
+const selectionsLabel = (selections) =>
+  orderedSlots((selections || []).map((s) => s.slot))
+    .map((slot) => {
+      const sel = selections.find((s) => s.slot === slot);
+      return `${SLOT_LABEL[slot]}: ${sel.items.length ? sel.items.map((i) => i.name).join(", ") : "—"}`;
+    })
+    .join(" · ");
+
 export default function MealPlans() {
   const { user } = useAuth();
   const canSubscribe = user && user.role === "customer";
@@ -164,6 +174,7 @@ export default function MealPlans() {
             <div key={s.id} className="mp-sub-card">
               <div className="mp-sub-main">
                 <p className="mp-sub-name">{s.planName} <span className={`mp-status mp-status-${s.status}`}>{STATUS_LABEL[s.status]}</span></p>
+                <p className="mp-sub-meta">{selectionsLabel(s.selections)}</p>
                 <p className="mp-sub-meta">
                   {s.channel === "delivery" ? "Delivery" : "Pickup"} · ₹{s.totalAmount} / cycle · {s.paymentStatus === "paid" ? "Paid" : "Pay in person"}
                 </p>

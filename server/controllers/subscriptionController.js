@@ -185,12 +185,37 @@ exports.createSubscription = asyncHandler(async (req, res) => {
   res.status(201).json({ subscription });
 });
 
+// `selections` is stored as raw { slot, itemIds } — genuinely useful to
+// nobody looking at it (an owner can't tell what "itemIds: [8, 2]" means).
+// Resolves each id against the *full* menu catalog (not just currently-
+// subscription-eligible items) so a subscription still shows what was
+// actually picked even if that item's category or price changed since, or
+// it was marked unavailable — only a fully deleted item would still be
+// unresolvable, which is the one gap this doesn't cover.
+async function withResolvedSelections(subs) {
+  const allItems = await menuItems.getAll();
+  const itemsById = {};
+  allItems.forEach((it) => { itemsById[it.id] = it; });
+  return subs.map((sub) => ({
+    ...sub,
+    selections: (sub.selections || []).map((sel) => ({
+      slot: sel.slot,
+      items: (sel.itemIds || [])
+        .map((id) => itemsById[id])
+        .filter(Boolean)
+        .map((it) => ({ id: it.id, name: it.name, price: it.price }))
+    }))
+  }));
+}
+
 exports.getMySubscriptions = asyncHandler(async (req, res) => {
-  res.json({ subscriptions: await subscriptions.getByCustomerId(req.user.id) });
+  const subs = await subscriptions.getByCustomerId(req.user.id);
+  res.json({ subscriptions: await withResolvedSelections(subs) });
 });
 
 exports.getAllSubscriptions = asyncHandler(async (req, res) => {
-  res.json({ subscriptions: await subscriptions.getAll() });
+  const subs = await subscriptions.getAll();
+  res.json({ subscriptions: await withResolvedSelections(subs) });
 });
 
 exports.updateSubscriptionStatus = asyncHandler(async (req, res) => {

@@ -6,6 +6,17 @@ const CYCLES = ["daily", "weekly", "monthly"];
 const CYCLE_LABEL = { daily: "Daily", weekly: "Weekly", monthly: "Monthly" };
 const SLOTS = ["breakfast", "lunch", "dinner"];
 const STATUS_LABEL = { active: "Active", paused: "Paused", cancelled: "Cancelled" };
+const SLOT_ORDER = ["breakfast", "lunch", "dinner"];
+const SLOT_LABEL = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner" };
+
+// sub.selections (once resolved by the server) is [{ slot, items: [{name}] }]
+// — this is what actually answers "what did they pick", which the list used
+// to have no way to show at all.
+const selectionsLabel = (selections) =>
+  [...(selections || [])]
+    .sort((a, b) => SLOT_ORDER.indexOf(a.slot) - SLOT_ORDER.indexOf(b.slot))
+    .map((sel) => `${SLOT_LABEL[sel.slot]}: ${sel.items.length ? sel.items.map((i) => i.name).join(", ") : "—"}`)
+    .join(" · ");
 const emptyPlanForm = { name: "", cycle: "weekly", mealSlots: ["lunch"], maxItemsPerMeal: 2 };
 
 // The owner-facing half of meal subscriptions — plan shape (cycle, meal
@@ -262,6 +273,9 @@ export default function MealPlansPanel() {
             <div style={{ minWidth: 0, flex: "1 1 220px" }}>
               <p style={{ margin: 0, fontSize: 13 }}>
                 {sub.customerName} <span style={{ color: "var(--a-text-secondary)", fontWeight: 400 }}>· {sub.planName}</span>
+              </p>
+              <p style={{ margin: "3px 0 0", fontSize: 11.5, color: "var(--a-text-secondary)" }}>
+                {selectionsLabel(sub.selections)}
               </p>
               <p style={{ margin: "3px 0 0", fontSize: 11.5, color: "var(--a-text-secondary)" }}>
                 {sub.channel === "delivery" ? `Delivery — ${sub.deliveryAddress}${sub.deliveryPhone ? ` · ${sub.deliveryPhone}` : ""}` : "Pickup"}
