@@ -15,6 +15,18 @@ create table if not exists users (
   staff_id integer -- links a staff/rider-role account to a row in staff.id, if any
 );
 
+-- One row per logged-in device that's opted into push notifications (see
+-- server/services/push.js). A user can have several rows (phone + tablet, etc.)
+-- — unlike a single fcmToken column, this doesn't silently drop a device when
+-- another one enables notifications.
+create table if not exists push_tokens (
+  id serial primary key,
+  user_id integer not null references users(id) on delete cascade,
+  token text not null unique,
+  created_at timestamptz not null default now()
+);
+create index if not exists idx_push_tokens_user_id on push_tokens(user_id);
+
 create table if not exists staff (
   id serial primary key,
   name text not null,

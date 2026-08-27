@@ -5,6 +5,7 @@ import App from "./App.jsx";
 import { AuthProvider } from "./auth/AuthContext.jsx";
 import "./styles/theme.css";
 import "./styles/admin-theme.css";
+import { setupForegroundPushListener } from "./push";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -26,4 +27,9 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
       // registration (e.g. an unsupported browser) shouldn't be user-facing.
     });
   });
+  // A push arriving while this tab is focused is handed to the page, not
+  // sw.js's background handler — this is what shows it in that case. Same
+  // PROD-only gating as the registration above: it waits on a service worker
+  // that only exists in production builds.
+  setupForegroundPushListener();
 }

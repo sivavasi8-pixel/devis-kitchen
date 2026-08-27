@@ -89,6 +89,9 @@ export const api = {
 
   getNotifications: () => request("/notifications"),
 
+  registerPushToken: (token) => request("/push/register", { method: "POST", body: JSON.stringify({ token }) }),
+  unregisterPushToken: (token) => request("/push/unregister", { method: "POST", body: JSON.stringify({ token }) }),
+
   getExpenses: () => request("/expenses"),
   createExpense: (expense) => request("/expenses", { method: "POST", body: JSON.stringify(expense) }),
   deleteExpense: (id) => request(`/expenses/${id}`, { method: "DELETE" })

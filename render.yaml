@@ -10,3 +10,5 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false # set manually — the service-account JSON from the devis-kitchen-orders Firebase project

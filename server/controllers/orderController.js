@@ -1,10 +1,22 @@
 const orders = require("../data/orders");
 const inventory = require("../data/inventory");
 const recipes = require("../data/recipes");
+const push = require("../services/push");
 const asyncHandler = require("../middleware/asyncHandler");
 
 const VALID_STATUSES = ["placed", "preparing", "ready", "out_for_delivery", "picked_up", "delivered", "cancelled"];
 const TERMINAL_STATUSES = ["delivered", "picked_up", "cancelled"];
+
+const itemsLabel = (items) => (items || []).map((it) => `${it.name}${it.qty > 1 ? ` x${it.qty}` : ""}`).join(", ");
+
+// "Ready" reads differently depending on how the order's leaving — pulled
+// from the same wording notificationsController.js already uses for the bell,
+// so the push and the bell never say two different things about one order.
+const readyBody = (order) => {
+  if (order.channel === "delivery") return "Waiting for a rider — won't be long.";
+  if (order.channel === "dine_in") return `Coming right up to Table ${order.tableNumber || "—"}.`;
+  return "Ready for pickup — swing by anytime.";
+};
 
 // Shared by order creation (deduct) and cancellation (restock) — items need a
 // menuItemId to match a recipe; a missing recipe or id is a silent no-op for that line.
@@ -96,6 +108,14 @@ exports.createOrder = asyncHandler(async (req, res) => {
 
   await adjustStockForItems(items, "deduct");
 
+  // Owner + every staff device — except the staff member who rang this up
+  // themselves at POS, who doesn't need telling about their own sale.
+  push.notifyRolesExcludingUser(["owner", "staff"], req.user.id, {
+    title: `New order #${order.id}`,
+    body: `${order.customerName} — ${itemsLabel(order.items)} — ₹${order.total} · ${order.channel.replace("_", "-")}`,
+    data: { orderId: String(order.id) }
+  });
+
   res.status(201).json({ order });
 });
 
@@ -121,8 +141,67 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
   }
 
   const order = await orders.updateStatus(req.params.id, status);
+  notifyStatusChange(order, status);
   res.json({ order });
 });
+
+// One place for every "status changed" push — updateOrderStatus (kitchen/
+// rider moving an order forward) and assignRider/cancelOrder below all end up
+// here except cancellation's own two-way notify, which needs to know who
+// initiated it and so stays inline in cancelOrder.
+function notifyStatusChange(order, status) {
+  if (status === "preparing") {
+    if (!order.customerId) return;
+    push.notifyUsers([order.customerId], {
+      title: "Your order's been accepted!",
+      body: `Devi's Kitchen is preparing order #${order.id} now.`,
+      data: { orderId: String(order.id) }
+    });
+    return;
+  }
+
+  if (status === "ready") {
+    if (order.customerId) {
+      push.notifyUsers([order.customerId], {
+        title: "Order ready",
+        body: readyBody(order),
+        data: { orderId: String(order.id) }
+      });
+    }
+    // Delivery/pickup orders still need a rider — let every rider device know
+    // there's something to claim, same pool the Rider screen itself shows.
+    if (order.channel !== "dine_in" && !order.riderId) {
+      push.notifyRoles(["rider"], {
+        title: "Order ready for pickup",
+        body: `#${order.id} → ${order.channel === "delivery" ? order.deliveryAddress : "counter pickup"}. First to claim it gets it.`,
+        data: { orderId: String(order.id) }
+      });
+    }
+    return;
+  }
+
+  if (status === "out_for_delivery") {
+    if (!order.customerId) return;
+    push.notifyUsers([order.customerId], {
+      title: "Out for delivery",
+      body: `${order.riderName || "Your rider"} is on the way with order #${order.id}.`,
+      data: { orderId: String(order.id) }
+    });
+    return;
+  }
+
+  if (status === "delivered" || status === "picked_up") {
+    if (!order.customerId) return;
+    push.notifyUsers([order.customerId], {
+      title: status === "delivered" ? "Delivered — enjoy!" : "Order picked up",
+      body:
+        status === "delivered"
+          ? `Order #${order.id} has arrived. Thanks for ordering from Devi's Kitchen.`
+          : `Order #${order.id} has been picked up. Enjoy!`,
+      data: { orderId: String(order.id) }
+    });
+  }
+}
 
 // Owner/staff assign a rider to a ready order; a rider can also self-claim
 // from the unassigned pool by passing their own staffId.
@@ -144,6 +223,14 @@ exports.assignRider = asyncHandler(async (req, res) => {
   }
 
   const updated = await orders.assignRider(req.params.id, riderId);
+  push.notifyStaffId(riderId, {
+    title: `New delivery — #${updated.id}`,
+    body:
+      updated.channel === "delivery"
+        ? `${updated.deliveryAddress}${updated.deliveryPhone ? ` · ${updated.deliveryPhone}` : ""} · ${itemsLabel(updated.items)}`
+        : `Counter pickup · ${itemsLabel(updated.items)}`,
+    data: { orderId: String(updated.id) }
+  });
   res.json({ order: updated });
 });
 
@@ -167,6 +254,24 @@ exports.cancelOrder = asyncHandler(async (req, res) => {
 
   const updated = await orders.updateStatus(req.params.id, "cancelled");
   await adjustStockForItems(order.items, "restock");
+
+  // Whichever side didn't do the cancelling is the side that needs telling —
+  // a customer backing out needs the kitchen to stop; the kitchen/owner
+  // cancelling needs the customer to know not to expect it.
+  if (req.user.role === "customer") {
+    push.notifyRoles(["owner", "staff"], {
+      title: "Order cancelled",
+      body: `${order.customerName} cancelled order #${order.id}.`,
+      data: { orderId: String(order.id) }
+    });
+  } else if (order.customerId) {
+    push.notifyUsers([order.customerId], {
+      title: "Order cancelled",
+      body: `Order #${order.id} was cancelled.`,
+      data: { orderId: String(order.id) }
+    });
+  }
+
   res.json({ order: updated });
 });
 

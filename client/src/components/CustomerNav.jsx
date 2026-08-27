@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useCart } from "../cart/CartContext";
+import PushToggle from "./PushToggle";
 
 export default function CustomerNav() {
   const { user, logout } = useAuth();
@@ -38,6 +39,7 @@ export default function CustomerNav() {
               <NavLink to="/my-orders" className={({ isActive }) => `topbar-link${isActive ? " active" : ""}`}>My orders</NavLink>
             )}
             <a href="/handbook-customer.html" target="_blank" rel="noopener noreferrer" className="topbar-link">Guide</a>
+            {user?.role === "customer" && <PushToggle className="topbar-link" showIcon={false} />}
           </nav>
 
           <div className="topbar-right">
@@ -73,6 +75,7 @@ export default function CustomerNav() {
           <i className="ti ti-book" aria-hidden="true" />
           <span>Guide</span>
         </a>
+        {user?.role === "customer" && <PushToggle className="tabbar-item" />}
         {user ? (
           <button className="tabbar-item" onClick={handleLogout}>
             <i className="ti ti-logout" aria-hidden="true" />
@@ -121,6 +124,7 @@ export default function CustomerNav() {
         .topbar-link {
           padding: 8px 14px; border-radius: 8px; font-size: 14px;
           text-decoration: none; color: rgba(250,248,243,0.75);
+          background: none; border: none; font-family: inherit; cursor: pointer;
         }
         .topbar-link.active { color: var(--cream); background: rgba(250,248,243,0.12); }
         .topbar-cart-badge {
