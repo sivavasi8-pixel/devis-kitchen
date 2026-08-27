@@ -1,0 +1,37 @@
+:root {
+  /* Owner/staff backend: clean software system, distinct from the warm
+     retail storefront. Cooler neutrals, tighter density, functional color
+     use (status/role only). Brand green stays the one identity anchor,
+     same convention as the bakery's admin console. */
+  --a-ink: #1c2b24;
+  --a-green: #24422f;
+  --a-bg: #f4f5f3;
+  --a-panel: #ffffff;
+  --a-sidebar: #182620;
+  --a-sidebar-hover: #223327;
+  --a-sidebar-active: #2c4234;
+  --a-text-primary: #1c2320;
+  --a-text-secondary: #6b7570;
+  --a-text-muted: #99a19c;
+  --a-border: #e3e5e1;
+  --a-accent: #c98a2e;
+  --a-success-bg: #e6f2e3;
+  --a-success-text: #2c5c26;
+  --a-warning-bg: #faf0d9;
+  --a-warning-text: #8a5a12;
+  --a-danger-bg: #fbe9e7;
+  --a-danger-text: #b3401f;
+  --a-radius: 8px;
+  --a-sidebar-w: 220px;
+  --a-topbar-h: 56px;
+  --a-tabbar-h: 58px;
+}
+
+.admin-root {
+  font-size: 13px;
+  color: var(--a-text-primary);
+  background: var(--a-bg);
+}
+.admin-root table { border-collapse: collapse; width: 100%; }
+.admin-root button, .admin-root select, .admin-root input { font-family: var(--font-body); }
+.admin-root button { cursor: pointer; }

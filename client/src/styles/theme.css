@@ -1,0 +1,98 @@
+:root {
+  /* Devi's Kitchen brand — same token system as the reference bakery app,
+     restyled for a home-style Indian restaurant: tandoor red in the "red"
+     accent slot, turmeric gold in the "gold" slot, forest green kept as the
+     shared brand-family anchor (same role the bakery gives it). */
+  --green: #24422f;
+  --green-dark: #16291b;
+  --green-tint: #eaf0ec;
+  --cream: #faf6ee;
+  --paper: #ffffff;
+  --stone: #f0e8d8;
+  --red: #b3401f;
+  --red-tint: #fbe9e2;
+  --gold: #c98a2e;
+  --charcoal: #2b2620;
+
+  --text-primary: var(--charcoal);
+  --text-secondary: #6e6558;
+  --text-muted: #a1978a;
+  --text-inverse: var(--cream);
+
+  --surface-0: var(--cream);
+  --surface-1: var(--paper);
+  --surface-2: var(--stone);
+
+  --border: #e8dfcd;
+  --border-strong: #d8cbaf;
+
+  --success-bg: #e7f2e4;
+  --success-text: #2c5c26;
+  --warning-bg: #f7ecd8;
+  --warning-text: #8a5a12;
+  --danger-bg: var(--red-tint);
+  --danger-text: var(--red);
+
+  --radius: 10px;
+  --radius-lg: 16px;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", -apple-system, sans-serif;
+
+  --tabbar-h: 60px;
+  --topbar-h: 64px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--surface-0);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  margin: 0;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+a { color: inherit; }
+
+img { max-width: 100%; display: block; }
+
+@media print {
+  header, .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
+
+@media (max-width: 760px) {
+  .split-2col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.page {
+  padding: 20px 16px calc(var(--tabbar-h) + 24px);
+  max-width: 1100px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+@media (min-width: 640px) {
+  .page { padding: 28px 24px calc(var(--tabbar-h) + 24px); }
+}
+@media (min-width: 960px) {
+  .page { padding: 32px 32px; }
+}
