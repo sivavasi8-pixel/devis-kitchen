@@ -22,7 +22,7 @@ const firebaseConfig = {
 // project → Project Settings → Cloud Messaging → Web Push certificates.
 // Public (same category as apiKey above) — proves to FCM that a token really
 // was requested by this app; carries no send authority on its own.
-const VAPID_KEY = "PASTE_WEB_PUSH_VAPID_KEY_HERE";
+const VAPID_KEY = "BOyfhfGD0OPX4rW9-rtof2P3rYHcxXVJqXVRxGJV9UYFw3Yjr7LmhSsxPe9Sr_4k3tnd7senhnj60jpaSYnuVmE";
 
 const TOKEN_STORAGE_KEY = "devis_kitchen_push_token";
 
