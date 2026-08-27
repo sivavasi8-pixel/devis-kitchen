@@ -136,7 +136,7 @@ export default function MealPlans() {
   });
 
   return (
-    <div className="page meal-plans-page">
+    <div className="page">
       <div className="hero">
         <div className="hero-copy">
           <span className="hero-eyebrow">📅 Subscribe &amp; save</span>
@@ -336,6 +336,7 @@ export default function MealPlans() {
 
         .mp-my-subs { margin-bottom: 8px; }
         .mp-sub-card { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 8px; background: var(--surface-1); }
+        .mp-sub-main { min-width: 0; flex: 1 1 220px; }
         .mp-sub-name { margin: 0; font-size: 13.5px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
         .mp-sub-meta { margin: 3px 0 0; font-size: 12px; color: var(--text-secondary); }
         .mp-status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; padding: 2px 8px; border-radius: 999px; }
@@ -362,6 +363,7 @@ export default function MealPlans() {
         .mp-builder { margin-top: 30px; border-top: 1px solid var(--border); padding-top: 22px; }
         .mp-builder-layout { display: block; }
         @media (min-width: 860px) { .mp-builder-layout { display: grid; grid-template-columns: 1.4fr 1fr; gap: 22px; align-items: start; } }
+        .mp-slots { min-width: 0; }
 
         .mp-slot-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
         .mp-slot-tab {
@@ -398,6 +400,15 @@ export default function MealPlans() {
 
         .mp-delivery-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; }
         .mp-field-label { display: block; font-size: 11.5px; color: var(--text-secondary); margin: 4px 0 4px; }
+        /* Every element that takes className="field-input" on this page needs this —
+           it's page-local in Order.jsx, not a real global class, so it has to be
+           redefined here too or these render as unstyled, inline browser defaults
+           (which is exactly what produced the broken-looking delivery section). */
+        .field-input {
+          width: 100%; padding: 8px 10px; font-size: 13px; border: 1px solid var(--border);
+          border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; font-family: var(--font-body);
+          resize: vertical; display: block;
+        }
 
         .mp-quote-panel {
           background: var(--surface-1); border: 1.5px solid var(--gold); border-radius: var(--radius-lg);
@@ -411,6 +422,11 @@ export default function MealPlans() {
           display: flex; justify-content: space-between; align-items: baseline; font-family: var(--font-display);
           font-size: 20px; font-weight: 700; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border);
         }
+        .btn-checkout {
+          width: 100%; padding: 10px; font-size: 13px; border: none; border-radius: 8px;
+          background: var(--green); color: var(--cream); font-weight: 500; box-sizing: border-box; margin-top: 14px;
+        }
+        .btn-checkout:disabled { background: var(--surface-2); color: var(--text-muted); }
       `}</style>
     </div>
   );
