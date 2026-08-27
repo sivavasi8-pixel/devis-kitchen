@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devi's Kitchen — Owner Manual</title>
+<meta name="description" content="A complete guide to running Devi's Kitchen as the owner: dashboard, POS, orders, inventory, staff, menu, and reports.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%91%91%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.46.0/tabler-icons.min.css">
+<style>
+  :root {
+    --accent: #24422f; --accent-dark: #16291b; --accent-tint: #eaf0ec;
+    --cream: #faf6ee; --gold: #c98a2e; --gold-tint: #f6ecd7;
+    --red: #b3401f; --red-tint: #fbe9e2;
+    --ink: #2a2d2b; --text-secondary: #5c6660; --text-muted: #8b9490;
+    --border: #e3ddd0; --surface-0: #faf6ee; --surface-1: #ffffff; --surface-2: #f2ede2;
+    --radius: 12px; --radius-lg: 16px;
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Inter", -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--font-body); color: var(--ink); background: var(--surface-0);
+    line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; color: var(--accent-dark); margin: 0; }
+  a { color: var(--accent); }
+  code {
+    background: var(--surface-2); padding: 1px 6px; border-radius: 4px; font-size: 0.9em;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  .hero {
+    background: linear-gradient(120deg, var(--accent-dark), var(--accent) 70%);
+    color: var(--cream); padding: 40px 20px 34px; text-align: center;
+  }
+  .hero-badge {
+    width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 22px;
+  }
+  .hero h1 { color: #fff; font-size: 28px; margin-bottom: 8px; }
+  .hero p { margin: 0; opacity: 0.85; font-size: 14px; max-width: 480px; margin: 0 auto; }
+  .hero .back-link {
+    display: inline-block; margin-top: 18px; font-size: 12.5px; color: var(--cream);
+    opacity: 0.75; text-decoration: none; border-bottom: 1px solid rgba(250,246,238,0.4);
+  }
+  .hero .back-link:hover { opacity: 1; }
+
+  main { max-width: 780px; margin: 0 auto; padding: 30px 20px 60px; }
+
+  .role-intro {
+    border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 28px;
+    border: 1.5px solid var(--accent); background: var(--accent-tint);
+    font-size: 12.5px; color: var(--ink);
+  }
+  .role-intro strong { color: var(--accent-dark); }
+
+  .chapter { margin-bottom: 26px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-1); }
+  .chapter-head {
+    display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+    border-bottom: 1px solid var(--border); background: var(--surface-2);
+  }
+  .chapter-head i { font-size: 17px; color: var(--text-secondary); }
+  .chapter-head h3 { font-size: 15.5px; }
+  .chapter-body { padding: 16px 20px 18px; }
+  .chapter-body p { margin: 0 0 10px; font-size: 13.5px; color: var(--ink); }
+  .chapter-body ul, .chapter-body ol { margin: 0 0 10px; padding-left: 20px; font-size: 13.5px; }
+  .chapter-body li { margin-bottom: 6px; }
+  .chapter-body li:last-child { margin-bottom: 0; }
+  .chapter-body strong { color: var(--accent-dark); }
+
+  .callout {
+    display: flex; gap: 10px; font-size: 12.5px; color: var(--ink); background: var(--gold-tint);
+    border: 1px solid var(--gold); border-radius: 10px; padding: 10px 14px; margin-top: 12px;
+  }
+  .callout i { color: var(--gold); flex-shrink: 0; margin-top: 1px; }
+  .callout.warn { background: var(--red-tint); border-color: var(--red); }
+  .callout.warn i { color: var(--red); }
+
+  .owner-only-note {
+    font-size: 11.5px; color: var(--text-muted); background: var(--surface-2);
+    border-radius: 6px; padding: 5px 10px; display: inline-block; margin-top: 4px;
+  }
+
+  footer { text-align: center; padding: 10px 20px 50px; font-size: 12px; color: var(--text-muted); }
+
+  @media print { .hero .back-link { display: none; } }
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="hero-badge">👑</div>
+    <h1>Owner Manual</h1>
+    <p>Everything you can do at Devi's Kitchen as the owner — full run of the place.</p>
+    <a href="/" class="back-link">← Back to the app</a>
+  </section>
+
+  <main>
+    <div class="role-intro">
+      <i class="ti ti-login" aria-hidden="true"></i>&nbsp; Log in at <code>/login</code> with your owner email and password. You get everything staff can do, plus <strong>Menu</strong> editing, <strong>Reports</strong>, and full roster management.
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><h3>Dashboard</h3></div>
+      <div class="chapter-body">
+        <p>Your landing page after login — a snapshot of today.</p>
+        <ul>
+          <li><strong>Four stat cards:</strong> today's revenue, orders today (with a pending count), staff currently on shift, and low-stock item count.</li>
+          <li><strong>Order queue:</strong> the most recent orders. Advance a kitchen-stage order (placed → preparing → ready) right from the dropdown next to it, or click <strong>Mark paid</strong> for a cash order once it's settled.</li>
+          <li>Each order links to its printable <strong>receipt</strong>.</li>
+          <li><strong>Low stock panel:</strong> anything at or below its reorder level, so you can act before you run out.</li>
+        </ul>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>The status dropdown here only offers the kitchen steps. Delivery hand-off (out for delivery / picked up / delivered) happens on the <strong>Orders</strong> page or the rider's own screen.</div>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-cash-register" aria-hidden="true"></i><h3>POS — ring up a walk-in sale</h3></div>
+      <div class="chapter-body">
+        <p>For customers ordering at the counter — pickup or dine-in only (no delivery from here).</p>
+        <ol>
+          <li>Pick a category tab, then tap items to add them to the sale.</li>
+          <li>Choose <strong>Pickup</strong> or <strong>Dine-in</strong> (dine-in asks for a table number).</li>
+          <li>Optionally type the customer's name — defaults to "Walk-in".</li>
+          <li>Pick a payment method (Cash / UPI / Card).</li>
+          <li>Click <strong>Charge and ring up</strong> — this creates the order and deducts ingredient stock automatically.</li>
+          <li>Print the receipt, or start the next sale.</li>
+        </ol>
+        <p>You can also toggle an item <strong>sold out / available</strong> directly from the POS grid — handy when the kitchen runs out mid-shift.</p>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Made-to-order items (like "Biryani by the kg") and Today's Specials don't show up in POS — those are ordered by customers through the online Order page's own forms.</div>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-clipboard-list" aria-hidden="true"></i><h3>Orders</h3></div>
+      <div class="chapter-body">
+        <p>Every order the shop has ever taken, searchable and filterable.</p>
+        <ul>
+          <li>Search by customer name or order number; filter by status.</li>
+          <li><strong>Advance status</strong> per order: placed → preparing → ready → (out for delivery / picked up) → delivered. Delivery and pickup orders both flow through this same dropdown.</li>
+          <li><strong>Assign a rider</strong> — appears once a delivery or pickup order hits "ready".</li>
+          <li><strong>Mark paid</strong> for anything still unpaid (cash orders stay unpaid until you or staff confirm payment).</li>
+          <li><strong>Cancel</strong> an order — automatically restocks any ingredients that had been deducted for it.</li>
+          <li>Every row links to a printable receipt.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-package" aria-hidden="true"></i><h3>Inventory</h3></div>
+      <div class="chapter-body">
+        <p>Raw ingredient stock — what the kitchen actually consumes, separate from the menu itself.</p>
+        <ul>
+          <li>Stat cards show total items tracked, how many are low, and how many are fully out.</li>
+          <li>The list sorts out-of-stock and low-stock items to the top automatically.</li>
+          <li>Anyone can quick-set a new quantity on any ingredient (type a number, click <strong>Set</strong>) — useful after a delivery arrives.</li>
+          <li><strong>Owner-only:</strong> Add, Edit, or Delete an ingredient (name, unit, starting quantity, reorder level, supplier). Deleting one also removes it from any recipe that used it.</li>
+        </ul>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Stock deducts automatically when an order is placed, based on each menu item's <strong>recipe</strong> (see Menu below) — you don't need to manually subtract anything for a normal sale.</div>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-users" aria-hidden="true"></i><h3>Staff</h3></div>
+      <div class="chapter-body">
+        <p>Your roster, shift status, and task board.</p>
+        <ul>
+          <li>Stat cards: on shift now, open tasks, absent today.</li>
+          <li>Anyone can change a team member's status (clocked in / on break / absent / clocked out) from the dropdown.</li>
+          <li><strong>Owner-only:</strong> edit someone's shift text, remove a person from the roster (this also revokes their login if they had one), and add new staff.</li>
+          <li><strong>Adding a staff member:</strong> name, role, shift, and a checkbox for "this person is a delivery rider". Optionally also check "grant app access" to give them an email + password so they can log in themselves (this creates their account with the matching role — rider if the rider box is checked, staff otherwise).</li>
+          <li><strong>Task assignments:</strong> add a task, assign it to a specific person, give it a due time, tick it off (○ → ✓) when done, or edit/delete it later.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-tools-kitchen-2" aria-hidden="true"></i><h3>Menu <span class="owner-only-note">Owner only</span></h3></div>
+      <div class="chapter-body">
+        <p>What customers see on the Order page — the one page staff can't access.</p>
+        <ul>
+          <li><strong>Categories:</strong> Mains, Breads, Starters, Desserts, Beverages, and Custom are built in; add your own with <strong>+ New category</strong> in the item form — it appears as a new tab here and on the customer Order page automatically.</li>
+          <li><strong>Adding/editing an item:</strong> name, category, price, unit (plate, piece, kg…), description, and a cover photo.</li>
+          <li><strong>Leave price blank</strong> for a made-to-order item — use category <code>custom</code> for these (e.g. "Biryani by the kg", priced per kg). Customers order these from a dedicated form instead of tapping "Add".</li>
+          <li><strong>⭐ Special toggle:</strong> features an item in "Today's Specials" on the Order page until midnight, then it clears itself automatically — no need to remember to turn it off.</li>
+          <li><strong>🔥 Popular toggle:</strong> shows a "Popular" badge on the item's product card.</li>
+          <li><strong>In stock / Sold out toggle:</strong> hides the "Add" button from customers without deleting the item.</li>
+          <li><strong>Recipe editor</strong> (per item): the bill of materials — how much of each inventory ingredient one unit of this item uses. This is what drives automatic stock deduction on every order.</li>
+          <li><strong>Photos</strong> (per item): up to 4 extra gallery photos beyond the cover image, shown as a swipeable carousel to customers.</li>
+          <li>Switch between <strong>list</strong> and <strong>card</strong> view with the toggle in the top-right.</li>
+        </ul>
+        <div class="callout warn">
+          <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          The dropdown also offers a dedicated <code>⭐ Today's special</code> category, for an item that should <em>never</em> appear in the regular Mains/Breads/etc. tabs. But that category alone doesn't show it to customers — you still need to flip the <strong>⭐ Special</strong> toggle on it too, or it won't appear anywhere until you do.
+        </div>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-chart-bar" aria-hidden="true"></i><h3>Reports <span class="owner-only-note">Owner only</span></h3></div>
+      <div class="chapter-body">
+        <p>Revenue, expenses, and what's selling.</p>
+        <ul>
+          <li>Stat cards: all-time revenue, expenses, profit, total orders, and a placed/delivered breakdown.</li>
+          <li><strong>7-day revenue chart</strong> — hover a bar for that day's revenue and order count.</li>
+          <li><strong>Best sellers</strong> — top items by quantity sold.</li>
+          <li><strong>Expenses:</strong> log one (description, amount, category — ingredients/utilities/rent/wages/other) and remove any later. This week's spend and profit are called out above the list.</li>
+          <li><strong>Export CSV</strong> — downloads the week's revenue, best sellers, and expenses as a spreadsheet.</li>
+          <li><strong>Print / Save as PDF</strong> — uses your browser's print dialog; the nav is hidden automatically for a clean printout.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-bell" aria-hidden="true"></i><h3>Notifications</h3></div>
+      <div class="chapter-body">
+        <p style="margin-bottom:0">The bell icon (sidebar on desktop, top bar on mobile) checks for alerts every 30 seconds — things like low stock or orders needing attention — with a red badge showing how many are waiting. Click it to see the list.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>Devi's Kitchen · Owner Manual</footer>
+</body>
+</html>

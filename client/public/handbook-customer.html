@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devi's Kitchen — Customer Guide</title>
+<meta name="description" content="How to browse, order, and track your food from Devi's Kitchen.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%8D%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.46.0/tabler-icons.min.css">
+<style>
+  :root {
+    --accent: #b3401f; --accent-dark: #7a2b15; --accent-tint: #fbe9e2;
+    --cream: #faf6ee; --gold: #c98a2e; --gold-tint: #f6ecd7;
+    --green: #24422f;
+    --ink: #2a2d2b; --text-secondary: #5c6660; --text-muted: #8b9490;
+    --border: #e3ddd0; --surface-0: #faf6ee; --surface-1: #ffffff; --surface-2: #f2ede2;
+    --radius: 12px; --radius-lg: 16px;
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Inter", -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--font-body); color: var(--ink); background: var(--surface-0);
+    line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; color: var(--accent-dark); margin: 0; }
+  a { color: var(--green); }
+  code {
+    background: var(--surface-2); padding: 1px 6px; border-radius: 4px; font-size: 0.9em;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  .hero {
+    background: linear-gradient(120deg, var(--accent-dark), var(--accent) 70%);
+    color: var(--cream); padding: 40px 20px 34px; text-align: center;
+  }
+  .hero-badge {
+    width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 22px;
+  }
+  .hero h1 { color: #fff; font-size: 28px; margin-bottom: 8px; }
+  .hero p { margin: 0; opacity: 0.85; font-size: 14px; max-width: 480px; margin: 0 auto; }
+  .hero .back-link {
+    display: inline-block; margin-top: 18px; font-size: 12.5px; color: var(--cream);
+    opacity: 0.75; text-decoration: none; border-bottom: 1px solid rgba(250,246,238,0.4);
+  }
+  .hero .back-link:hover { opacity: 1; }
+
+  main { max-width: 780px; margin: 0 auto; padding: 30px 20px 60px; }
+
+  .role-intro {
+    border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 28px;
+    border: 1.5px solid var(--accent); background: var(--accent-tint);
+    font-size: 12.5px; color: var(--ink);
+  }
+  .role-intro strong { color: var(--accent-dark); }
+  .role-intro a { color: var(--accent-dark); font-weight: 600; }
+
+  .chapter { margin-bottom: 26px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-1); }
+  .chapter-head {
+    display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+    border-bottom: 1px solid var(--border); background: var(--surface-2);
+  }
+  .chapter-head i { font-size: 17px; color: var(--text-secondary); }
+  .chapter-head h3 { font-size: 15.5px; }
+  .chapter-body { padding: 16px 20px 18px; }
+  .chapter-body p { margin: 0 0 10px; font-size: 13.5px; color: var(--ink); }
+  .chapter-body ul, .chapter-body ol { margin: 0 0 10px; padding-left: 20px; font-size: 13.5px; }
+  .chapter-body li { margin-bottom: 6px; }
+  .chapter-body li:last-child { margin-bottom: 0; }
+  .chapter-body strong { color: var(--accent-dark); }
+
+  .callout {
+    display: flex; gap: 10px; font-size: 12.5px; color: var(--ink); background: var(--gold-tint);
+    border: 1px solid var(--gold); border-radius: 10px; padding: 10px 14px; margin-top: 12px;
+  }
+  .callout i { color: var(--gold); flex-shrink: 0; margin-top: 1px; }
+
+  footer { text-align: center; padding: 10px 20px 50px; font-size: 12px; color: var(--text-muted); }
+
+  @media print { .hero .back-link { display: none; } }
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="hero-badge">🛍️</div>
+    <h1>Customer Guide</h1>
+    <p>Browse the menu, order online, and track what you've ordered from Devi's Kitchen.</p>
+    <a href="/" class="back-link">← Back to the app</a>
+  </section>
+
+  <main>
+    <div class="role-intro">
+      <i class="ti ti-login" aria-hidden="true"></i>&nbsp; Browsing the menu doesn't need an account. To check out, <a href="/signup">create one</a> — just a name, email, and password — or <a href="/login">log in</a> if you already have one.
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-shopping-bag" aria-hidden="true"></i><h3>Order online</h3></div>
+      <div class="chapter-body">
+        <p>The main menu page — open to everyone, logged in or not.</p>
+        <ul>
+          <li><strong>Search</strong> the whole menu by name, or browse by category chip (Mains, Breads, Starters, Desserts, Beverages, Custom order, and any others the kitchen has added).</li>
+          <li><strong>Today's Specials</strong> — a highlighted strip at the top, when the kitchen has anything featured that day. These clear automatically at midnight.</li>
+          <li>Tap the <strong>♥</strong> on any item to favorite it (saved on your device, not tied to your account).</li>
+          <li>Some items have a photo carousel — swipe or use the arrows to see extra photos.</li>
+          <li><strong>Custom order</strong> tab: for made-to-order items priced by weight (like "Biryani by the kg"). Enter the quantity in kg, optionally a protein/style, spice level, and a needed-by date — the price calculates automatically as you type.</li>
+          <li><strong>Your order panel</strong> (right side / bottom sheet on mobile): shows everything in your cart with any notes, and the running total.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-truck-delivery" aria-hidden="true"></i><h3>Checking out</h3></div>
+      <div class="chapter-body">
+        <ol>
+          <li>Add items to your cart from the menu (or the Custom order form).</li>
+          <li>Choose how you're getting it: <strong>Delivery</strong> (needs an address, phone optional), <strong>Pickup</strong>, or <strong>Dine-in</strong> (needs a table number).</li>
+          <li>Pick a payment method: Cash, UPI, or Card.</li>
+          <li>Click <strong>Checkout</strong>.</li>
+        </ol>
+        <p>If you're not logged in yet, your cart stays exactly as it is — just log in or create an account, and you'll come right back to checkout.</p>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>UPI and Card orders are treated as paid immediately. <strong>Cash</strong> orders stay "unpaid" in the system until the kitchen or your rider confirms payment when the order arrives.</div>
+        <p style="margin-top: 12px; margin-bottom: 0;">Once placed, you'll see an order confirmation with a link to your printable receipt, and a live tracker banner will follow your active order around the site until it's delivered.</p>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-receipt" aria-hidden="true"></i><h3>My orders</h3></div>
+      <div class="chapter-body">
+        <p>Your full order history, newest first — item list, channel, total, and live status for each.</p>
+        <ul style="margin-bottom:0">
+          <li>Click <strong>receipt</strong> on any order to view or print it.</li>
+          <li>You can <strong>cancel</strong> an order yourself, but only while it's still just "placed" — once the kitchen starts preparing it, you'll need to call the restaurant to cancel.</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer>Devi's Kitchen · Customer Guide</footer>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devi's Kitchen — Staff Manual</title>
+<meta name="description" content="A guide to running the day-to-day at Devi's Kitchen as staff: dashboard, POS, orders, inventory, and the shared task board.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%91%A9%E2%80%8D%F0%9F%8D%B3%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.46.0/tabler-icons.min.css">
+<style>
+  :root {
+    --accent: #8a5a2e; --accent-dark: #5c3b1e; --accent-tint: #f3e6d4;
+    --cream: #faf6ee; --gold: #c98a2e; --gold-tint: #f6ecd7;
+    --red: #b3401f; --red-tint: #fbe9e2;
+    --ink: #2a2d2b; --text-secondary: #5c6660; --text-muted: #8b9490;
+    --border: #e3ddd0; --surface-0: #faf6ee; --surface-1: #ffffff; --surface-2: #f2ede2;
+    --radius: 12px; --radius-lg: 16px;
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Inter", -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--font-body); color: var(--ink); background: var(--surface-0);
+    line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; color: var(--accent-dark); margin: 0; }
+  a { color: var(--accent); }
+  code {
+    background: var(--surface-2); padding: 1px 6px; border-radius: 4px; font-size: 0.9em;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  .hero {
+    background: linear-gradient(120deg, var(--accent-dark), var(--accent) 70%);
+    color: var(--cream); padding: 40px 20px 34px; text-align: center;
+  }
+  .hero-badge {
+    width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 22px;
+  }
+  .hero h1 { color: #fff; font-size: 28px; margin-bottom: 8px; }
+  .hero p { margin: 0; opacity: 0.85; font-size: 14px; max-width: 480px; margin: 0 auto; }
+  .hero .back-link {
+    display: inline-block; margin-top: 18px; font-size: 12.5px; color: var(--cream);
+    opacity: 0.75; text-decoration: none; border-bottom: 1px solid rgba(250,246,238,0.4);
+  }
+  .hero .back-link:hover { opacity: 1; }
+
+  main { max-width: 780px; margin: 0 auto; padding: 30px 20px 60px; }
+
+  .role-intro {
+    border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 28px;
+    border: 1.5px solid var(--accent); background: var(--accent-tint);
+    font-size: 12.5px; color: var(--ink);
+  }
+  .role-intro strong { color: var(--accent-dark); }
+
+  .chapter { margin-bottom: 26px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-1); }
+  .chapter-head {
+    display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+    border-bottom: 1px solid var(--border); background: var(--surface-2);
+  }
+  .chapter-head i { font-size: 17px; color: var(--text-secondary); }
+  .chapter-head h3 { font-size: 15.5px; }
+  .chapter-body { padding: 16px 20px 18px; }
+  .chapter-body p { margin: 0 0 10px; font-size: 13.5px; color: var(--ink); }
+  .chapter-body ul, .chapter-body ol { margin: 0 0 10px; padding-left: 20px; font-size: 13.5px; }
+  .chapter-body li { margin-bottom: 6px; }
+  .chapter-body li:last-child { margin-bottom: 0; }
+  .chapter-body strong { color: var(--accent-dark); }
+  .chapter-body em { color: var(--text-secondary); }
+
+  .callout {
+    display: flex; gap: 10px; font-size: 12.5px; color: var(--ink); background: var(--gold-tint);
+    border: 1px solid var(--gold); border-radius: 10px; padding: 10px 14px; margin-top: 12px;
+  }
+  .callout i { color: var(--gold); flex-shrink: 0; margin-top: 1px; }
+
+  footer { text-align: center; padding: 10px 20px 50px; font-size: 12px; color: var(--text-muted); }
+
+  @media print { .hero .back-link { display: none; } }
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="hero-badge">👩‍🍳</div>
+    <h1>Staff Manual</h1>
+    <p>The day-to-day running of the kitchen and counter at Devi's Kitchen.</p>
+    <a href="/" class="back-link">← Back to the app</a>
+  </section>
+
+  <main>
+    <div class="role-intro">
+      <i class="ti ti-login" aria-hidden="true"></i>&nbsp; Log in at <code>/login</code> with the email and password your owner set up for you. You get the dashboard, POS, orders, inventory, and the staff/task board — <strong>Menu editing and Reports are owner-only</strong> and won't appear in your nav.
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><h3>Dashboard</h3></div>
+      <div class="chapter-body">
+        <p>Your landing page — today's revenue, order count, who's on shift, and low-stock items, plus the live order queue where you can advance an order (placed → preparing → ready) or mark a cash order paid.</p>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-cash-register" aria-hidden="true"></i><h3>POS — ring up a walk-in sale</h3></div>
+      <div class="chapter-body">
+        <p>For counter customers — pickup or dine-in.</p>
+        <ol>
+          <li>Tap items by category to build the sale.</li>
+          <li>Choose Pickup or Dine-in (with table number).</li>
+          <li>Optional customer name, pick a payment method, then <strong>Charge and ring up</strong>.</li>
+          <li>Print the receipt or start the next sale.</li>
+        </ol>
+        <p style="margin-bottom:0">You can also mark an item sold out / available right from the grid.</p>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-clipboard-list" aria-hidden="true"></i><h3>Orders</h3></div>
+      <div class="chapter-body">
+        <ul style="margin-bottom:0">
+          <li>Search or filter every order by status.</li>
+          <li>Advance an order's status through its full lifecycle, including delivery hand-off steps.</li>
+          <li>Assign a rider once an order is "ready".</li>
+          <li>Mark an order paid, or cancel it (stock gets restocked automatically).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-package" aria-hidden="true"></i><h3>Inventory</h3></div>
+      <div class="chapter-body">
+        <p style="margin-bottom:0">View stock levels and quick-set a new quantity for any ingredient (type a number next to it, click <strong>Set</strong>) — e.g. after a delivery comes in. Adding, editing, or deleting an ingredient definition itself is owner-only.</p>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-users" aria-hidden="true"></i><h3>Staff &amp; tasks</h3></div>
+      <div class="chapter-body">
+        <p>You can see the full roster and change anyone's shift status (clocked in / on break / absent / clocked out) — handy for clocking yourself or a coworker in and out.</p>
+        <p>Task board: tick tasks done, edit them, or add a new one and assign it to a teammate.</p>
+        <p style="margin-bottom:0"><em>Adding/removing staff, editing shift schedules, and granting logins are owner-only actions.</em></p>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-bell" aria-hidden="true"></i><h3>Notifications</h3></div>
+      <div class="chapter-body">
+        <p style="margin-bottom:0">The bell icon polls for alerts (like low stock) every 30 seconds — click it to see what needs attention.</p>
+      </div>
+    </div>
+
+    <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Need something you don't see here — editing the menu, viewing reports, adding a teammate? That's your owner's job. Ask them.</div>
+  </main>
+
+  <footer>Devi's Kitchen · Staff Manual</footer>
+</body>
+</html>

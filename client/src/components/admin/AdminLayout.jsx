@@ -18,11 +18,17 @@ const allNavItems = [
 
 const riderNavItems = [{ to: "/rider", label: "My Deliveries", icon: "ti-moped", end: true }];
 
+// Owner/staff/rider each have their own standalone manual (client/public/handbook-*.html) —
+// no shared page, so this just maps role straight to its file.
+const handbookHrefFor = (role) => `/handbook-${["owner", "staff", "rider"].includes(role) ? role : "owner"}.html`;
+
 export default function AdminLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const isRider = user?.role === "rider";
   const navItems = isRider ? riderNavItems : allNavItems.filter((n) => !n.ownerOnly || user?.role === "owner");
+  // Each role gets its own standalone manual, not a shared page — see handbookHrefFor below.
+  const handbookHref = handbookHrefFor(user?.role);
 
   const handleLogout = () => {
     logout();
@@ -53,7 +59,7 @@ export default function AdminLayout() {
         ))}
 
         <div className="admin-sidebar-footer">
-          <a href={`/handbook.html?role=${user?.role || "owner"}`} target="_blank" rel="noopener noreferrer" className="admin-nav-item">
+          <a href={handbookHref} target="_blank" rel="noopener noreferrer" className="admin-nav-item">
             <i className="ti ti-book" aria-hidden="true" />
             <span>Guide</span>
           </a>
@@ -155,7 +161,7 @@ function MobileTopbar({ navItems, onLogout }) {
               <span>{n.label}</span>
             </NavLink>
           ))}
-          <a href={`/handbook.html?role=${user?.role || "owner"}`} target="_blank" rel="noopener noreferrer" className="admin-nav-item">
+          <a href={handbookHrefFor(user?.role)} target="_blank" rel="noopener noreferrer" className="admin-nav-item">
             <i className="ti ti-book" aria-hidden="true" />
             <span>Guide</span>
           </a>

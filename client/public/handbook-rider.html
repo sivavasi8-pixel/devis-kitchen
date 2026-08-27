@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devi's Kitchen — Rider Manual</title>
+<meta name="description" content="A guide to delivering for Devi's Kitchen: your assigned deliveries and how to claim ready orders.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%B5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.46.0/tabler-icons.min.css">
+<style>
+  :root {
+    --accent: #2e6b8a; --accent-dark: #1c4459; --accent-tint: #e2eef4;
+    --cream: #faf6ee; --gold: #c98a2e; --gold-tint: #f6ecd7;
+    --red: #b3401f; --red-tint: #fbe9e2;
+    --ink: #2a2d2b; --text-secondary: #5c6660; --text-muted: #8b9490;
+    --border: #e3ddd0; --surface-0: #faf6ee; --surface-1: #ffffff; --surface-2: #f2ede2;
+    --radius: 12px; --radius-lg: 16px;
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Inter", -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--font-body); color: var(--ink); background: var(--surface-0);
+    line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; color: var(--accent-dark); margin: 0; }
+  a { color: var(--accent); }
+  code {
+    background: var(--surface-2); padding: 1px 6px; border-radius: 4px; font-size: 0.9em;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  }
+
+  .hero {
+    background: linear-gradient(120deg, var(--accent-dark), var(--accent) 70%);
+    color: var(--cream); padding: 40px 20px 34px; text-align: center;
+  }
+  .hero-badge {
+    width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid var(--gold);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 22px;
+  }
+  .hero h1 { color: #fff; font-size: 28px; margin-bottom: 8px; }
+  .hero p { margin: 0; opacity: 0.85; font-size: 14px; max-width: 480px; margin: 0 auto; }
+  .hero .back-link {
+    display: inline-block; margin-top: 18px; font-size: 12.5px; color: var(--cream);
+    opacity: 0.75; text-decoration: none; border-bottom: 1px solid rgba(250,246,238,0.4);
+  }
+  .hero .back-link:hover { opacity: 1; }
+
+  main { max-width: 780px; margin: 0 auto; padding: 30px 20px 60px; }
+
+  .role-intro {
+    border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 28px;
+    border: 1.5px solid var(--accent); background: var(--accent-tint);
+    font-size: 12.5px; color: var(--ink);
+  }
+  .role-intro strong { color: var(--accent-dark); }
+
+  .chapter { margin-bottom: 26px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-1); }
+  .chapter-head {
+    display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+    border-bottom: 1px solid var(--border); background: var(--surface-2);
+  }
+  .chapter-head i { font-size: 17px; color: var(--text-secondary); }
+  .chapter-head h3 { font-size: 15.5px; }
+  .chapter-body { padding: 16px 20px 18px; }
+  .chapter-body p { margin: 0 0 10px; font-size: 13.5px; color: var(--ink); }
+  .chapter-body ul, .chapter-body ol { margin: 0 0 10px; padding-left: 20px; font-size: 13.5px; }
+  .chapter-body li { margin-bottom: 6px; }
+  .chapter-body li:last-child { margin-bottom: 0; }
+  .chapter-body strong { color: var(--accent-dark); }
+
+  .steps {
+    display: flex; flex-direction: column; gap: 10px; margin: 14px 0 0;
+  }
+  .step {
+    display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px;
+    background: var(--surface-2); border-radius: 10px;
+  }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff;
+    font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .step p { margin: 0; font-size: 13px; }
+
+  .callout {
+    display: flex; gap: 10px; font-size: 12.5px; color: var(--ink); background: var(--gold-tint);
+    border: 1px solid var(--gold); border-radius: 10px; padding: 10px 14px; margin-top: 12px;
+  }
+  .callout i { color: var(--gold); flex-shrink: 0; margin-top: 1px; }
+
+  footer { text-align: center; padding: 10px 20px 50px; font-size: 12px; color: var(--text-muted); }
+
+  @media print { .hero .back-link { display: none; } }
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="hero-badge">🛵</div>
+    <h1>Rider Manual</h1>
+    <p>A single, focused screen: the deliveries assigned to you, and orders you can pick up yourself.</p>
+    <a href="/" class="back-link">← Back to the app</a>
+  </section>
+
+  <main>
+    <div class="role-intro">
+      <i class="ti ti-login" aria-hidden="true"></i>&nbsp; Log in at <code>/login</code> with the email and password your owner set up for you. You'll land straight on <strong>My Deliveries</strong> — it's the only page you need.
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-moped" aria-hidden="true"></i><h3>My Deliveries</h3></div>
+      <div class="chapter-body">
+        <p>This page refreshes itself automatically every 15 seconds, so you don't need to manually reload to see new orders come in.</p>
+
+        <p><strong>Assigned to me</strong> — orders someone (or you) has put on your plate. Each one shows the customer, items, delivery address &amp; phone (for delivery orders), and payment status.</p>
+
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">1</span>
+            <p>When an order is marked <strong>ready</strong> by the kitchen, tap <strong>Mark picked up</strong> — this moves a delivery order to "out for delivery", or a pickup order straight to "picked up".</p>
+          </div>
+          <div class="step">
+            <span class="step-num">2</span>
+            <p>Once you've dropped it off (or the customer's collected it), tap <strong>Mark delivered</strong>.</p>
+          </div>
+        </div>
+
+        <p style="margin-top: 18px;"><strong>Ready for pickup — unassigned</strong> — orders that are ready but nobody's claimed yet. Tap <strong>Claim this order</strong> to assign it to yourself; it then moves into your "Assigned to me" list.</p>
+
+        <p style="margin-bottom:0">Every order links to a printable receipt if you need to double-check the details — items, address, or payment method.</p>
+      </div>
+    </div>
+
+    <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Dine-in orders never show up here — only delivery and pickup orders need a rider.</div>
+  </main>
+
+  <footer>Devi's Kitchen · Rider Manual</footer>
+</body>
+</html>
