@@ -4,6 +4,8 @@ const mapRow = (r) =>
   r && {
     id: r.id,
     customerId: r.customer_id,
+    customerName: r.customer_name || undefined, // present only when joined
+    customerEmail: r.customer_email || undefined,
     planId: r.plan_id,
     planName: r.plan_name || undefined, // present only when joined
     channel: r.channel,
@@ -23,9 +25,10 @@ const mapRow = (r) =>
   };
 
 const BASE_SELECT = `
-  select s.*, p.name as plan_name
+  select s.*, p.name as plan_name, u.name as customer_name, u.email as customer_email
   from subscriptions s
   join subscription_plans p on p.id = s.plan_id
+  join users u on u.id = s.customer_id
 `;
 
 exports.create = async ({

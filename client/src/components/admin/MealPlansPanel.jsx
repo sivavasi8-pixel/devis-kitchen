@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { api } from "../../api";
-import { ListPanel, ListRow } from "./AdminUI";
+import { ListPanel, ListRow, StatGrid, StatCard } from "./AdminUI";
 
 const CYCLES = ["daily", "weekly", "monthly"];
 const CYCLE_LABEL = { daily: "Daily", weekly: "Weekly", monthly: "Monthly" };
 const SLOTS = ["breakfast", "lunch", "dinner"];
+const STATUS_LABEL = { active: "Active", paused: "Paused", cancelled: "Cancelled" };
 const emptyPlanForm = { name: "", cycle: "weekly", mealSlots: ["lunch"], maxItemsPerMeal: 2 };
 
 // The owner-facing half of meal subscriptions — plan shape (cycle, meal
@@ -14,8 +15,10 @@ const emptyPlanForm = { name: "", cycle: "weekly", mealSlots: ["lunch"], maxItem
 export default function MealPlansPanel() {
   const [plans, setPlans] = useState(null);
   const [settings, setSettings] = useState(null);
+  const [subscriptions, setSubscriptions] = useState(null);
   const [error, setError] = useState(null);
   const [actionError, setActionError] = useState(null);
+  const [subActionId, setSubActionId] = useState(null);
 
   const [discountDrafts, setDiscountDrafts] = useState({});
   const [deliveryFeeDraft, setDeliveryFeeDraft] = useState("");
@@ -27,11 +30,12 @@ export default function MealPlansPanel() {
   const [formError, setFormError] = useState(null);
 
   const load = () =>
-    Promise.all([api.getAllSubscriptionPlans(), api.getSubscriptionSettings()])
-      .then(([p, s]) => {
+    Promise.all([api.getAllSubscriptionPlans(), api.getSubscriptionSettings(), api.getAllSubscriptions()])
+      .then(([p, s, subs]) => {
         setPlans(p.plans);
         setSettings(s);
         setDeliveryFeeDraft(String(s.deliveryFeePerDay));
+        setSubscriptions(subs.subscriptions);
       })
       .catch((e) => setError(e.message));
 
@@ -110,6 +114,19 @@ export default function MealPlansPanel() {
     }
   };
 
+  const changeSubStatus = async (sub, status) => {
+    setSubActionId(sub.id);
+    setActionError(null);
+    try {
+      await api.updateSubscriptionStatus(sub.id, status);
+      await load();
+    } catch (err) {
+      setActionError(err.message);
+    } finally {
+      setSubActionId(null);
+    }
+  };
+
   const handleDelete = async (plan) => {
     if (!confirm(`Delete "${plan.name}"? This won't affect anyone already subscribed.`)) return;
     setActionError(null);
@@ -122,7 +139,10 @@ export default function MealPlansPanel() {
   };
 
   if (error) return <p style={{ color: "var(--a-danger-text)" }}>Couldn't load meal plans: {error}</p>;
-  if (!plans || !settings) return <p style={{ color: "var(--a-text-secondary)" }}>Loading…</p>;
+  if (!plans || !settings || !subscriptions) return <p style={{ color: "var(--a-text-secondary)" }}>Loading…</p>;
+
+  const activeSubs = subscriptions.filter((s) => s.status === "active");
+  const recurringRevenue = activeSubs.reduce((sum, s) => sum + s.totalAmount, 0);
 
   return (
     <div>
@@ -226,6 +246,52 @@ export default function MealPlansPanel() {
         </form>
       </div>
 
+      <p className="admin-section-title" style={{ marginTop: 20 }}>Subscribers</p>
+      <StatGrid columns={3}>
+        <StatCard label="Active subscriptions" value={activeSubs.length} />
+        <StatCard label="Recurring revenue" value={`₹${recurringRevenue.toLocaleString()}`} sub="per cycle, active only" />
+        <StatCard label="Total ever subscribed" value={subscriptions.length} />
+      </StatGrid>
+
+      <ListPanel>
+        {subscriptions.length === 0 && (
+          <p style={{ padding: 14, fontSize: 13, color: "var(--a-text-secondary)" }}>No one has subscribed yet.</p>
+        )}
+        {subscriptions.map((sub) => (
+          <ListRow key={sub.id}>
+            <div style={{ minWidth: 0, flex: "1 1 220px" }}>
+              <p style={{ margin: 0, fontSize: 13 }}>
+                {sub.customerName} <span style={{ color: "var(--a-text-secondary)", fontWeight: 400 }}>· {sub.planName}</span>
+              </p>
+              <p style={{ margin: "3px 0 0", fontSize: 11.5, color: "var(--a-text-secondary)" }}>
+                {sub.channel === "delivery" ? `Delivery — ${sub.deliveryAddress}${sub.deliveryPhone ? ` · ${sub.deliveryPhone}` : ""}` : "Pickup"}
+              </p>
+              <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--a-text-muted)" }}>
+                ₹{sub.totalAmount} / cycle · {sub.paymentStatus === "paid" ? "Paid" : "Pay in person"} ({sub.paymentMethod})
+              </p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "wrap" }}>
+              <span className={`mp-sub-status mp-sub-status-${sub.status}`}>{STATUS_LABEL[sub.status]}</span>
+              {sub.status === "active" && (
+                <button onClick={() => changeSubStatus(sub, "paused")} disabled={subActionId === sub.id} className="admin-btn-xs">Pause</button>
+              )}
+              {sub.status === "paused" && (
+                <button onClick={() => changeSubStatus(sub, "active")} disabled={subActionId === sub.id} className="admin-btn-xs">Resume</button>
+              )}
+              {sub.status !== "cancelled" && (
+                <button
+                  onClick={() => { if (confirm(`Cancel ${sub.customerName}'s subscription?`)) changeSubStatus(sub, "cancelled"); }}
+                  disabled={subActionId === sub.id}
+                  className="admin-btn-xs danger"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </ListRow>
+        ))}
+      </ListPanel>
+
       <style>{`
         .mp-hint { font-size: 11.5px; color: var(--a-text-secondary); margin: 0 0 12px; }
         .mp-tier-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
@@ -241,6 +307,10 @@ export default function MealPlansPanel() {
           border-radius: 999px; padding: 4px 10px; font-size: 10.5px; font-weight: 600; white-space: nowrap;
         }
         .mp-plan-toggle.on { border-color: var(--a-green); background: var(--a-green); color: #fff; }
+        .mp-sub-status { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; padding: 2px 8px; border-radius: 999px; }
+        .mp-sub-status-active { background: var(--a-success-bg); color: var(--a-success-text); }
+        .mp-sub-status-paused { background: var(--a-warning-bg); color: var(--a-warning-text); }
+        .mp-sub-status-cancelled { background: var(--a-bg); color: var(--a-text-muted); }
       `}</style>
     </div>
   );
