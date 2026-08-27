@@ -15,3 +15,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </BrowserRouter>
   </React.StrictMode>
 );
+
+// Registers the (deliberately no-cache) service worker so the browser treats
+// this as an installable app. Only in production — during `vite dev` this
+// would otherwise fight Vite's own module reloading.
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      // Installability is a nice-to-have, not a requirement — a failed
+      // registration (e.g. an unsupported browser) shouldn't be user-facing.
+    });
+  });
+}
