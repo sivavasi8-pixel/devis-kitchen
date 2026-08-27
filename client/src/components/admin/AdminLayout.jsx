@@ -53,6 +53,10 @@ export default function AdminLayout() {
         ))}
 
         <div className="admin-sidebar-footer">
+          <a href={`/handbook.html?role=${user?.role || "owner"}`} target="_blank" rel="noopener noreferrer" className="admin-nav-item">
+            <i className="ti ti-book" aria-hidden="true" />
+            <span>Guide</span>
+          </a>
           <div className="admin-sidebar-bell">
             <NotificationBell align="left" openUpward />
           </div>
@@ -151,6 +155,10 @@ function MobileTopbar({ navItems, onLogout }) {
               <span>{n.label}</span>
             </NavLink>
           ))}
+          <a href={`/handbook.html?role=${user?.role || "owner"}`} target="_blank" rel="noopener noreferrer" className="admin-nav-item">
+            <i className="ti ti-book" aria-hidden="true" />
+            <span>Guide</span>
+          </a>
           <div className="admin-sidebar-user" style={{ color: "#4d5852" }}>
             {user?.name} <span style={{ color: "#8b9490" }}>{user?.email}</span>
           </div>

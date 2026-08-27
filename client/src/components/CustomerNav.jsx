@@ -37,6 +37,7 @@ export default function CustomerNav() {
             {user?.role === "customer" && (
               <NavLink to="/my-orders" className={({ isActive }) => `topbar-link${isActive ? " active" : ""}`}>My orders</NavLink>
             )}
+            <a href="/handbook.html?role=customer" target="_blank" rel="noopener noreferrer" className="topbar-link">Guide</a>
           </nav>
 
           <div className="topbar-right">
@@ -68,6 +69,10 @@ export default function CustomerNav() {
             <span>{tab.label}</span>
           </NavLink>
         ))}
+        <a href="/handbook.html?role=customer" target="_blank" rel="noopener noreferrer" className="tabbar-item">
+          <i className="ti ti-book" aria-hidden="true" />
+          <span>Guide</span>
+        </a>
         {user ? (
           <button className="tabbar-item" onClick={handleLogout}>
             <i className="ti ti-logout" aria-hidden="true" />
