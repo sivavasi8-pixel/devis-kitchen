@@ -293,6 +293,11 @@ export default function Order() {
         </div>
       </div>
 
+      <div className="prep-notice">
+        <span className="prep-notice-icon" aria-hidden="true">🍳</span>
+        <span>We cook fresh after you order — nothing is pre-made, so please allow time for preparation.</span>
+      </div>
+
       {activeOrder && (
         <Link to={`/receipt/${activeOrder.id}`} className="tracker">
           <span className="tracker-dot" />
@@ -489,9 +494,12 @@ export default function Order() {
               {checkoutError && <p className="checkout-error">{checkoutError}</p>}
 
               {canOrder ? (
-                <button onClick={handleCheckout} disabled={cart.length === 0 || placing} className="btn-checkout">
-                  {placing ? "Placing order…" : "Checkout"}
-                </button>
+                <>
+                  <button onClick={handleCheckout} disabled={cart.length === 0 || placing} className="btn-checkout">
+                    {placing ? "Placing order…" : "Checkout"}
+                  </button>
+                  {cart.length > 0 && <p className="checkout-note">We start cooking once you order — thanks for your patience!</p>}
+                </>
               ) : (
                 cart.length > 0 && (
                   <p className="login-prompt">
@@ -545,6 +553,13 @@ export default function Order() {
         .tracker-title { font-size: 13px; font-weight: 600; text-transform: capitalize; }
         .tracker-meta { font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; }
         .tracker-chevron { font-size: 17px; color: var(--text-muted); flex-shrink: 0; }
+
+        .prep-notice {
+          display: flex; align-items: center; gap: 9px; margin-bottom: 16px;
+          background: var(--gold-tint, #f6ecd7); border: 1px solid var(--gold); border-radius: var(--radius);
+          padding: 10px 14px; font-size: 12.5px; color: var(--text-primary);
+        }
+        .prep-notice-icon { font-size: 15px; flex-shrink: 0; }
 
         .search-wrap { position: relative; margin-bottom: 20px; }
         .search-input {
@@ -712,6 +727,7 @@ export default function Order() {
         .cart-total-value { font-size: 16px; font-weight: 500; }
 
         .checkout-error { font-size: 12px; color: var(--red); margin-bottom: 10px; }
+        .checkout-note { font-size: 11px; color: var(--text-secondary); text-align: center; margin: 8px 0 0; }
 
         .btn-checkout {
           width: 100%; padding: 10px; font-size: 13px; border: none; border-radius: 8px;
