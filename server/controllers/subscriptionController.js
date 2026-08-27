@@ -3,6 +3,7 @@ const settings = require("../data/subscriptionSettings");
 const subscriptions = require("../data/subscriptions");
 const menuItems = require("../data/menuItems");
 const pricing = require("../services/subscriptionPricing");
+const push = require("../services/push");
 const asyncHandler = require("../middleware/asyncHandler");
 
 const VALID_SLOTS = ["breakfast", "lunch", "dinner"];
@@ -182,6 +183,15 @@ exports.createSubscription = asyncHandler(async (req, res) => {
     paymentStatus
   });
 
+  // Same "owner + every staff device" broadcast as a new one-off order
+  // (server/controllers/orderController.js) — a recurring customer is exactly
+  // as relevant to the kitchen as a one-time one.
+  push.notifyRoles(["owner", "staff"], {
+    title: `New subscription — ${plan.name}`,
+    body: `${req.user.name} — ₹${quote.totalAmount} / cycle · ${channel === "delivery" ? "delivery" : "pickup"}`,
+    data: { subscriptionId: String(subscription.id) }
+  });
+
   res.status(201).json({ subscription });
 });
 
@@ -230,5 +240,28 @@ exports.updateSubscriptionStatus = asyncHandler(async (req, res) => {
     return res.status(403).json({ error: "Not your subscription" });
   }
   const subscription = await subscriptions.updateStatus(req.params.id, status);
+
+  // Whichever side didn't make the change is the side that needs telling —
+  // same rule as cancelOrder in orderController.js. A customer pausing/
+  // resuming/cancelling their own subscription doesn't need a push about
+  // their own action; owner/staff acting on someone else's subscription does
+  // need the customer told, since they didn't initiate it.
+  if (req.user.role === "customer") {
+    if (status === "cancelled") {
+      push.notifyRoles(["owner", "staff"], {
+        title: "Subscription cancelled",
+        body: `${req.user.name} cancelled their ${existing.planName} subscription.`,
+        data: { subscriptionId: String(subscription.id) }
+      });
+    }
+  } else {
+    const label = status === "cancelled" ? "cancelled" : status === "paused" ? "paused" : "resumed";
+    push.notifyUsers([existing.customerId], {
+      title: `Subscription ${label}`,
+      body: `Your ${existing.planName} subscription was ${label} by the restaurant.`,
+      data: { subscriptionId: String(subscription.id) }
+    });
+  }
+
   res.json({ subscription });
 });
