@@ -58,7 +58,7 @@ function CustomOrderForm({ item, onAdd }) {
   return (
     <form onSubmit={handleSubmit} className="custom-cake-form">
       <p className="custom-cake-title">{item.name}</p>
-      <p className="custom-cake-rate">₹{item.price}/kg — made fresh to order.</p>
+      <p className="custom-cake-rate">₹{item.price}/{item.unit} — made fresh to order.</p>
 
       <label className="field-label">Quantity (kg)</label>
       <input type="number" min="0.5" step="0.5" value={weight} onChange={(e) => setWeight(e.target.value)} className="field-input" required />
@@ -151,7 +151,7 @@ function ProductCard({ item, isFav, onToggleFav, onAdd }) {
         </div>
         <p className="product-desc">{item.description}</p>
         <div className="product-footer">
-          <span className="product-price">{item.price ? `₹${item.price}` : "made to order"}</span>
+          <span className="product-price">{item.price ? `₹${item.price} / ${item.unit}` : "made to order"}</span>
           {!item.inStock ? (
             <span className="sold-out">Sold out</span>
           ) : (
@@ -340,7 +340,7 @@ export default function Order() {
                 <p className="special-name">{item.name}</p>
                 <p className="special-desc">{item.description}</p>
                 <div className="special-footer">
-                  <span className="special-price">{item.price ? `₹${item.price}` : "made to order"}</span>
+                  <span className="special-price">{item.price ? `₹${item.price} / ${item.unit}` : "made to order"}</span>
                   {!item.inStock ? (
                     <span className="sold-out">Sold out</span>
                   ) : (
