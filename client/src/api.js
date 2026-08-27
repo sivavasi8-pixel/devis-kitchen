@@ -94,5 +94,26 @@ export const api = {
 
   getExpenses: () => request("/expenses"),
   createExpense: (expense) => request("/expenses", { method: "POST", body: JSON.stringify(expense) }),
-  deleteExpense: (id) => request(`/expenses/${id}`, { method: "DELETE" })
+  deleteExpense: (id) => request(`/expenses/${id}`, { method: "DELETE" }),
+
+  // Meal subscriptions
+  getSubscriptionPlans: () => request("/subscriptions/plans"),
+  getAllSubscriptionPlans: () => request("/subscriptions/plans/all"),
+  createSubscriptionPlan: (plan) => request("/subscriptions/plans", { method: "POST", body: JSON.stringify(plan) }),
+  updateSubscriptionPlan: (id, fields) => request(`/subscriptions/plans/${id}`, { method: "PATCH", body: JSON.stringify(fields) }),
+  deleteSubscriptionPlan: (id) => request(`/subscriptions/plans/${id}`, { method: "DELETE" }),
+
+  getSubscriptionSettings: () => request("/subscriptions/settings"),
+  updateSubscriptionDiscount: (cycle, discountPercent) =>
+    request("/subscriptions/settings/discount", { method: "PATCH", body: JSON.stringify({ cycle, discountPercent }) }),
+  updateSubscriptionDeliveryFee: (deliveryFeePerDay) =>
+    request("/subscriptions/settings/delivery-fee", { method: "PATCH", body: JSON.stringify({ deliveryFeePerDay }) }),
+
+  getSubscriptionEligibleItems: () => request("/subscriptions/eligible-items"),
+  getSubscriptionQuote: (payload) => request("/subscriptions/quote", { method: "POST", body: JSON.stringify(payload) }),
+  createSubscription: (payload) => request("/subscriptions", { method: "POST", body: JSON.stringify(payload) }),
+  getMySubscriptions: () => request("/subscriptions/mine"),
+  getAllSubscriptions: () => request("/subscriptions"),
+  updateSubscriptionStatus: (id, status) =>
+    request(`/subscriptions/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) })
 };

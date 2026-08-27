@@ -14,6 +14,7 @@ const reportsRoutes = require("./routes/reportsRoutes");
 const notificationsRoutes = require("./routes/notificationsRoutes");
 const expensesRoutes = require("./routes/expensesRoutes");
 const pushRoutes = require("./routes/pushRoutes");
+const subscriptionRoutes = require("./routes/subscriptionRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -33,6 +34,7 @@ app.use("/api/reports", reportsRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/expenses", expensesRoutes);
 app.use("/api/push", pushRoutes);
+app.use("/api/subscriptions", subscriptionRoutes);
 
 // Serve the built React app (client/dist), if it exists — only present after
 // `npm run build`. Local dev runs the client separately via `vite dev`, so this

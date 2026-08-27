@@ -16,6 +16,7 @@ import POS from "./pages/POS";
 import Receipt from "./pages/Receipt";
 import Orders from "./pages/Orders";
 import Rider from "./pages/Rider";
+import MealPlans from "./pages/MealPlans";
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
           being logged in as a customer. */}
       <Route element={<CartProvider><CustomerNav /></CartProvider>}>
         <Route path="/order" element={<Order />} />
+        <Route path="/meal-plans" element={<MealPlans />} />
         <Route
           path="/my-orders"
           element={

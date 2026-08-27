@@ -200,3 +200,82 @@ insert into orders (id, customer_name, customer_id, items, total, channel, statu
   (5003, 'Table 4', null, '[{"menuItemId":4,"name":"Veg Spring Rolls","qty":2},{"menuItemId":6,"name":"Masala Chai","qty":2}]', 380, 'dine_in', 'preparing', 'cash', 'unpaid', null, null, null, '2026-08-20T12:35:00Z')
 on conflict (id) do nothing;
 select setval('orders_id_seq', 5004);
+
+-- ---------- Meal subscriptions ----------
+-- Owner sets the *shape* of a plan (cycle, meals/day, item limit) — no price
+-- field. The price is computed from whatever real menu items the customer
+-- picks: (sum of item prices) x cycle days, minus the discount for that
+-- cycle length, plus a flat delivery fee x cycle days for delivery
+-- subscriptions. See server/services/subscriptionPricing.js.
+create table if not exists subscription_plans (
+  id serial primary key,
+  name text not null,
+  cycle text not null check (cycle in ('daily', 'weekly', 'monthly')),
+  meal_slots text[] not null,              -- e.g. {'lunch','dinner'}
+  max_items_per_meal integer not null default 2,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+-- One row per cycle length — owner-editable discount %, applied to every
+-- plan of that cycle. Changing a value only affects future subscribe/renew
+-- calculations, never a cycle already locked in and paid for.
+create table if not exists subscription_discounts (
+  cycle text primary key check (cycle in ('daily', 'weekly', 'monthly')),
+  discount_percent numeric not null default 0
+);
+insert into subscription_discounts (cycle, discount_percent) values
+  ('daily', 0), ('weekly', 3), ('monthly', 5)
+on conflict (cycle) do nothing;
+
+-- Single-row settings table (id is always 1) — just the delivery fee for now,
+-- room to grow without another migration if more global settings show up.
+create table if not exists subscription_settings (
+  id integer primary key default 1,
+  delivery_fee_per_day numeric not null default 0,
+  check (id = 1)
+);
+insert into subscription_settings (id, delivery_fee_per_day) values (1, 30)
+on conflict (id) do nothing;
+
+-- A customer's subscription. food_subtotal/discount_percent/delivery_fee_total/
+-- total_amount are all locked in at subscribe (or renewal) time — a later
+-- menu price change or discount-tier edit never rewrites what was already
+-- charged. `selections` is the default per-slot item template chosen at
+-- signup, used to pre-fill each day in subscription_meal_selections.
+create table if not exists subscriptions (
+  id serial primary key,
+  customer_id integer not null references users(id),
+  plan_id integer not null references subscription_plans(id),
+  channel text not null check (channel in ('delivery', 'pickup')),
+  delivery_address text,
+  delivery_phone text,
+  status text not null default 'active' check (status in ('active', 'paused', 'cancelled')),
+  cycle_start_date date not null,
+  cycle_days integer not null,             -- daily=1, weekly=7, monthly=30 (fixed, not calendar-accurate)
+  selections jsonb not null default '[]',  -- [{ slot, itemIds }] — the default template
+  food_subtotal numeric not null,
+  discount_percent numeric not null,
+  delivery_fee_total numeric not null default 0,
+  total_amount numeric not null,
+  payment_method text,
+  payment_status text not null default 'unpaid',
+  created_at timestamptz not null default now()
+);
+
+-- One row per subscriber per day per meal slot. A day's items can be swapped
+-- freely up until cutoff_at; past that, a scheduled job turns 'confirmed'
+-- rows into a real row in `orders` (order_id filled in, status becomes
+-- 'materialized') — the kitchen/POS/rider flow never needs to know it came
+-- from a subscription.
+create table if not exists subscription_meal_selections (
+  id serial primary key,
+  subscription_id integer not null references subscriptions(id) on delete cascade,
+  meal_date date not null,
+  meal_slot text not null,
+  item_ids integer[] not null default '{}',
+  status text not null default 'pending' check (status in ('pending', 'confirmed', 'skipped', 'materialized')),
+  cutoff_at timestamptz not null,
+  order_id integer references orders(id),
+  unique (subscription_id, meal_date, meal_slot)
+);

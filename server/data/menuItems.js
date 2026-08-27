@@ -50,6 +50,17 @@ exports.getAll = async (category) => {
   return rows.map(mapRow);
 };
 
+// Every regular menu item is automatically pickable inside a subscription —
+// no separate per-item "eligible" flag to maintain. Excluded: 'custom'
+// (made-to-order, no fixed price to multiply by cycle days) and 'special'
+// (today-only, doesn't fit something that repeats every day of a cycle).
+exports.getSubscriptionEligible = async () => {
+  const { rows } = await pool.query(
+    "select id, name, category, price, unit, in_stock from menu_items where category not in ('custom', 'special') and price is not null order by category, name"
+  );
+  return rows.map((r) => ({ id: r.id, name: r.name, category: r.category, price: Number(r.price), unit: r.unit, inStock: r.in_stock }));
+};
+
 exports.getById = async (id) => {
   const { rows } = await pool.query(`${SELECT_WITH_GALLERY} where m.id = $1 group by m.id`, [id]);
   return mapRow(rows[0]);

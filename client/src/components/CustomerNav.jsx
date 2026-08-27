@@ -15,6 +15,7 @@ export default function CustomerNav() {
 
   const customerTabs = [
     { to: "/order", label: "Order", iconClass: "ti-shopping-bag" },
+    { to: "/meal-plans", label: "Meal Plans", iconClass: "ti-calendar" },
     ...(user?.role === "customer" ? [{ to: "/my-orders", label: "My orders", iconClass: "ti-receipt" }] : []),
   ];
 
@@ -35,6 +36,7 @@ export default function CustomerNav() {
               Order online
               {cartCount > 0 && <span className="topbar-cart-badge">{cartCount}</span>}
             </NavLink>
+            <NavLink to="/meal-plans" className={({ isActive }) => `topbar-link${isActive ? " active" : ""}`}>Meal Plans</NavLink>
             {user?.role === "customer" && (
               <NavLink to="/my-orders" className={({ isActive }) => `topbar-link${isActive ? " active" : ""}`}>My orders</NavLink>
             )}
