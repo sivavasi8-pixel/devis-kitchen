@@ -27,6 +27,10 @@ const emptyPlanForm = { name: "", cycle: "weekly", mealSlots: ["lunch"], maxItem
 export default function MealPlansPanel() {
   const { user } = useAuth();
   const isOwner = user?.role === "owner";
+  // Subscribers is the default and only tab staff ever see — plan/pricing
+  // setup is a rare, owner-only task, not the everyday reason anyone opens
+  // this page. Staff gets no tab bar at all, just the subscriber list.
+  const [activeTab, setActiveTab] = useState("subscribers");
   const [plans, setPlans] = useState(null);
   const [settings, setSettings] = useState(null);
   const [subscriptions, setSubscriptions] = useState(null);
@@ -163,6 +167,23 @@ export default function MealPlansPanel() {
       {actionError && <p style={{ fontSize: 13, color: "var(--a-danger-text)", marginBottom: 14 }}>{actionError}</p>}
 
       {isOwner && (
+        <div className="mp-admin-tabs">
+          <button
+            className={`mp-admin-tab${activeTab === "subscribers" ? " active" : ""}`}
+            onClick={() => setActiveTab("subscribers")}
+          >
+            Subscribers
+          </button>
+          <button
+            className={`mp-admin-tab${activeTab === "plans" ? " active" : ""}`}
+            onClick={() => setActiveTab("plans")}
+          >
+            Meal Plans
+          </button>
+        </div>
+      )}
+
+      {isOwner && activeTab === "plans" && (
       <>
       <div className="admin-two-col" style={{ marginBottom: 18 }}>
         <div className="admin-form-panel">
@@ -264,7 +285,8 @@ export default function MealPlansPanel() {
       </>
       )}
 
-      <p className="admin-section-title">Subscribers</p>
+      {(!isOwner || activeTab === "subscribers") && (
+      <>
       <StatGrid columns={3}>
         <StatCard label="Active subscriptions" value={activeSubs.length} />
         <StatCard label="Recurring revenue" value={`₹${recurringRevenue.toLocaleString()}`} sub="per cycle, active only" />
@@ -312,6 +334,8 @@ export default function MealPlansPanel() {
           </ListRow>
         ))}
       </ListPanel>
+      </>
+      )}
 
       <style>{`
         /* This component used to only ever render nested inside MenuAdmin.jsx,
@@ -331,6 +355,12 @@ export default function MealPlansPanel() {
         .admin-btn-xs { border: 1px solid var(--a-border); background: var(--a-panel); border-radius: 6px; padding: 5px 10px; font-size: 11.5px; white-space: nowrap; color: var(--a-text-secondary); }
         .admin-btn-xs.danger { color: var(--a-danger-text); }
 
+        .mp-admin-tabs { display: flex; gap: 6px; margin-bottom: 18px; border-bottom: 1px solid var(--a-border); }
+        .mp-admin-tab {
+          border: none; background: none; padding: 9px 4px; margin-right: 18px; font-size: 13.5px;
+          font-weight: 500; color: var(--a-text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px;
+        }
+        .mp-admin-tab.active { color: var(--a-text-primary); border-bottom-color: var(--a-green); }
         .mp-hint { font-size: 11.5px; color: var(--a-text-secondary); margin: 0 0 12px; }
         .mp-tier-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
         .mp-tier-row:last-child { margin-bottom: 0; }

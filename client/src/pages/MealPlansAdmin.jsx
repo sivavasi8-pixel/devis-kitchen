@@ -9,7 +9,7 @@ import MealPlansPanel from "../components/admin/MealPlansPanel";
 // pieces (plan creation, discount tiers, delivery fee) internally.
 export default function MealPlansAdmin() {
   return (
-    <AdminPage eyebrow="Plans, pricing, and who's subscribed" title="Meal Plans">
+    <AdminPage eyebrow="Who's subscribed, plus plan and pricing setup" title="Subscribers">
       <MealPlansPanel />
     </AdminPage>
   );
