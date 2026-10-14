@@ -17,6 +17,7 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [pin, setPin] = useState("");
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const { signup } = useAuth();
@@ -27,7 +28,7 @@ export default function Signup() {
     setError(null);
     setSubmitting(true);
     try {
-      await signup(name, email, password, phone);
+      await signup(name, email, password, phone, pin);
       navigate("/order");
     } catch (err) {
       setError(err.message);
@@ -62,20 +63,35 @@ export default function Signup() {
         />
         <input
           type="tel"
-          placeholder="Phone (optional)"
+          placeholder="Phone number"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           style={inputStyle}
+          required
         />
         <input
           type="password"
-          placeholder="Password (min 6 characters)"
+          placeholder="Password (min 8 characters)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           style={inputStyle}
           required
-          minLength={6}
+          minLength={8}
         />
+        <input
+          type="password"
+          inputMode="numeric"
+          placeholder="6-digit PIN (for resetting your password)"
+          value={pin}
+          onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+          style={inputStyle}
+          required
+          pattern="\d{6}"
+          title="Exactly 6 digits"
+        />
+        <p style={{ color: "var(--text-secondary)", fontSize: "11.5px", margin: "-6px 0 12px" }}>
+          Remember this PIN. It is how you reset your password if you forget it.
+        </p>
         {error && <p style={{ color: "var(--red)", fontSize: "13px", marginBottom: "12px" }}>{error}</p>}
         <button
           type="submit"

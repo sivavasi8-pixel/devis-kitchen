@@ -101,51 +101,67 @@
 
   <main>
     <div class="role-intro">
-      <i class="ti ti-login" aria-hidden="true"></i>&nbsp; Log in at <code>/login</code> with your owner email and password. You get everything staff can do, plus <strong>Menu</strong> editing, <strong>Reports</strong>, and full roster management.
+      <i class="ti ti-login" aria-hidden="true"></i>&nbsp; Log in at <code>/login</code> with your owner email and password and you'll land on the <strong>Dashboard</strong>. You get everything staff can do, plus <strong>Menu</strong> editing, <strong>Reports</strong>, <strong>Settings</strong> and full roster management. The restaurant's web address itself (<code>/</code>) shows the customer menu. Use <strong>Shop console</strong> in the top bar, or <strong>View storefront</strong> in the sidebar, to switch between the two.
     </div>
 
     <div class="chapter">
       <div class="chapter-head"><i class="ti ti-layout-dashboard" aria-hidden="true"></i><h3>Dashboard</h3></div>
       <div class="chapter-body">
-        <p>Your landing page after login — a snapshot of today.</p>
+        <p>Your landing page: a snapshot of today. Use <strong>New sale</strong> (top right) to jump to the counter sale screen.</p>
         <ul>
-          <li><strong>Four stat cards:</strong> today's revenue, orders today (with a pending count), staff currently on shift, and low-stock item count.</li>
-          <li><strong>Order queue:</strong> the most recent orders. Advance a kitchen-stage order (placed → preparing → ready) right from the dropdown next to it, or click <strong>Mark paid</strong> for a cash order once it's settled.</li>
-          <li>Each order links to its printable <strong>receipt</strong>.</li>
-          <li><strong>Low stock panel:</strong> anything at or below its reorder level, so you can act before you run out.</li>
+          <li><strong>Four stat cards:</strong> revenue today (with the order count), <strong>to cook now</strong> (orders waiting or being prepared), <strong>awaiting payment</strong> (how many orders and how much money still needs confirming), and <strong>running low</strong> (ingredients at or below their reorder level).</li>
+          <li><strong>Order queue:</strong> everything still in progress, oldest first. Each row has a one-tap button for the next step (<em>Start preparing → Mark ready → Out for delivery / Collected / Served → Delivered</em>) and <strong>Mark paid</strong>. Each order links to its receipt.</li>
+          <li><strong>Running low:</strong> each low ingredient with a bar showing how close it is to running out.</li>
+          <li><strong>On shift:</strong> who is clocked in, with their role and shift.</li>
+          <li><strong>Last 7 days</strong> revenue chart (owner only), linking to Reports.</li>
         </ul>
-        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>The status dropdown here only offers the kitchen steps. Delivery hand-off (out for delivery / picked up / delivered) happens on the <strong>Orders</strong> page or the rider's own screen.</div>
       </div>
     </div>
 
     <div class="chapter">
-      <div class="chapter-head"><i class="ti ti-cash-register" aria-hidden="true"></i><h3>POS — ring up a walk-in sale</h3></div>
+      <div class="chapter-head"><i class="ti ti-cash-register" aria-hidden="true"></i><h3>Counter sale (POS)</h3></div>
       <div class="chapter-body">
-        <p>For customers ordering at the counter — pickup or dine-in only (no delivery from here).</p>
+        <p>For customers ordering at the counter: pickup or dine-in (no delivery from here).</p>
         <ol>
-          <li>Pick a category tab, then tap items to add them to the sale.</li>
+          <li>Pick <strong>All items</strong> or a category tab, then tap an item to add it. Tap again to add more. Use the <strong>− / +</strong> buttons in the sale to change a quantity.</li>
           <li>Choose <strong>Pickup</strong> or <strong>Dine-in</strong> (dine-in asks for a table number).</li>
-          <li>Optionally type the customer's name — defaults to "Walk-in".</li>
+          <li>Optionally type the customer's name. It defaults to "Walk-in".</li>
           <li>Pick a payment method (Cash / UPI / Card).</li>
-          <li>Click <strong>Charge and ring up</strong> — this creates the order and deducts ingredient stock automatically.</li>
-          <li>Print the receipt, or start the next sale.</li>
+          <li>Click the big <strong>Charge</strong> button. This creates a paid order and deducts ingredient stock automatically.</li>
+          <li>Print the receipt, or just start the next sale. <strong>Clear</strong> empties the sale.</li>
         </ol>
-        <p>You can also toggle an item <strong>sold out / available</strong> directly from the POS grid — handy when the kitchen runs out mid-shift.</p>
-        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Made-to-order items (like "Biryani by the kg") and Today's Specials don't show up in POS — those are ordered by customers through the online Order page's own forms.</div>
+        <p>Use <strong>Mark sold out / Mark available</strong> under any tile when the kitchen runs out mid-shift.</p>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Made-to-order items (like "Biryani by the kg") don't show up here. Customers order those through the online Order page's own form. Prices always come from the menu, never from the screen.</div>
       </div>
     </div>
 
     <div class="chapter">
       <div class="chapter-head"><i class="ti ti-clipboard-list" aria-hidden="true"></i><h3>Orders</h3></div>
       <div class="chapter-body">
-        <p>Every order the shop has ever taken, searchable and filterable.</p>
+        <p>Two views, switched at the top right.</p>
         <ul>
-          <li>Search by customer name or order number; filter by status.</li>
-          <li><strong>Advance status</strong> per order: placed → preparing → ready → (out for delivery / picked up) → delivered. Delivery and pickup orders both flow through this same dropdown.</li>
-          <li><strong>Assign a rider</strong> — appears once a delivery or pickup order hits "ready".</li>
-          <li><strong>Mark paid</strong> for anything still unpaid (cash orders stay unpaid until you or staff confirm payment).</li>
-          <li><strong>Cancel</strong> an order — automatically restocks any ingredients that had been deducted for it.</li>
-          <li>Every row links to a printable receipt.</li>
+          <li><strong>Board</strong> (default): columns for <em>New, Preparing, Ready, Out for delivery</em> and <em>Done today</em>. Each card has one button to move it to the next step. It refreshes by itself every 30 seconds, so new online orders appear without reloading.</li>
+          <li><strong>All orders:</strong> the full history as a table, with a status filter and a dropdown to correct a status.</li>
+          <li><strong>Search</strong> by customer name, order number or phone, and filter by <em>All / Delivery / Pickup / Dine-in</em>.</li>
+          <li><strong>Booked time:</strong> orders a customer booked for later show the day and time on the card. Orders without one are "as soon as possible".</li>
+          <li><strong>Assign a rider</strong> once a delivery or pickup order is <em>Ready</em>. A rider can also claim it from their own screen.</li>
+          <li><strong>Mark urgent</strong> on a delivery order moves it to the top of every rider's list.</li>
+          <li><strong>Payment:</strong> a customer who paid by UPI can upload a screenshot. When one is there, <strong>View receipt</strong> opens it so you can check the money arrived, then <strong>Mark paid</strong>. Customer orders always start unpaid.</li>
+          <li><strong>Cancel order</strong> asks you to confirm, then restocks any ingredients that had been deducted.</li>
+          <li>Orders created from a meal subscription carry a small <em>subscription</em> badge.</li>
+        </ul>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>A cancelled order can't be reopened. If the customer changes their mind, place a new order instead. This keeps stock correct.</div>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-address-book" aria-hidden="true"></i><h3>Customers</h3></div>
+      <div class="chapter-body">
+        <p>Everyone who has signed up, with their email and phone.</p>
+        <ul style="margin-bottom:0">
+          <li>A highlighted row means the customer asked for a <strong>PIN reset</strong> because they can't remember their PIN. Set a new 6-digit PIN for them and let them know.</li>
+          <li><strong>Reset password</strong> sets a new password (at least 8 characters) for a customer who is locked out.</li>
+          <li>Customers who signed up before PINs existed show "Not set" in the PIN column. Setting one lets them use the forgot-password page.</li>
         </ul>
       </div>
     </div>
@@ -153,73 +169,114 @@
     <div class="chapter">
       <div class="chapter-head"><i class="ti ti-package" aria-hidden="true"></i><h3>Inventory</h3></div>
       <div class="chapter-body">
-        <p>Raw ingredient stock — what the kitchen actually consumes, separate from the menu itself.</p>
+        <p>Raw ingredient stock: what the kitchen actually consumes, separate from the menu itself.</p>
         <ul>
-          <li>Stat cards show total items tracked, how many are low, and how many are fully out.</li>
-          <li>The list sorts out-of-stock and low-stock items to the top automatically.</li>
-          <li>Anyone can quick-set a new quantity on any ingredient (type a number, click <strong>Set</strong>) — useful after a delivery arrives.</li>
-          <li><strong>Owner-only:</strong> Add, Edit, or Delete an ingredient (name, unit, starting quantity, reorder level, supplier). Deleting one also removes it from any recipe that used it.</li>
+          <li>Stat cards show how many items are tracked, how many are low and how many are out. Out-of-stock and low-stock items sort to the top.</li>
+          <li>Anyone can quick-set a new quantity (type a number, click <strong>Set</strong>), for example after a delivery arrives.</li>
+          <li><strong>Used this week / this month</strong> shows how much of each ingredient orders have consumed.</li>
+          <li><strong>View history</strong> lists every change to that ingredient: which order used it, a cancelled order giving it back, or someone setting it by hand.</li>
+          <li><strong>Create reorder task</strong> (on low items) adds a task to the Staff page so someone remembers to buy it.</li>
+          <li><strong>Owner only:</strong> Add, Edit or Delete an ingredient: name, unit, quantity, reorder level, supplier and <strong>cost per unit</strong>. Deleting one also removes it from any recipe that used it.</li>
         </ul>
-        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Stock deducts automatically when an order is placed, based on each menu item's <strong>recipe</strong> (see Menu below) — you don't need to manually subtract anything for a normal sale.</div>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Stock deducts automatically when an order is placed, based on each menu item's <strong>recipe</strong> (see Menu), and comes back automatically if the order is cancelled.</div>
       </div>
     </div>
 
     <div class="chapter">
       <div class="chapter-head"><i class="ti ti-users" aria-hidden="true"></i><h3>Staff</h3></div>
       <div class="chapter-body">
-        <p>Your roster, shift status, and task board.</p>
+        <p>Your roster, shift status and task board.</p>
         <ul>
           <li>Stat cards: on shift now, open tasks, absent today.</li>
-          <li>Anyone can change a team member's status (clocked in / on break / absent / clocked out) from the dropdown.</li>
-          <li><strong>Owner-only:</strong> edit someone's shift text, remove a person from the roster (this also revokes their login if they had one), and add new staff.</li>
-          <li><strong>Adding a staff member:</strong> name, role, shift, and a checkbox for "this person is a delivery rider". Optionally also check "grant app access" to give them an email + password so they can log in themselves (this creates their account with the matching role — rider if the rider box is checked, staff otherwise).</li>
-          <li><strong>Task assignments:</strong> add a task, assign it to a specific person, give it a due time, tick it off (○ → ✓) when done, or edit/delete it later.</li>
+          <li>Each person can change <strong>their own</strong> status (clocked in / on break / absent / clocked out). Only the owner can change someone else's.</li>
+          <li><strong>Owner only:</strong> edit someone's shift text, remove a person from the roster (this also revokes their login), and add new staff.</li>
+          <li><strong>Adding a staff member:</strong> name, role, shift, and a checkbox for "this person is a delivery rider". Optionally give them app access with an email and a password of at least 8 characters. That creates their login with the matching role (rider if the rider box is ticked, staff otherwise). An email that's already in use is refused.</li>
+          <li><strong>Task assignments:</strong> add a task, assign it to someone, give it a due time, tick it off when done, or edit or delete it later.</li>
         </ul>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-calendar" aria-hidden="true"></i><h3>Subscribers &amp; meal plans</h3></div>
+      <div class="chapter-body">
+        <p>Open <strong>Subscribers</strong> in the sidebar. Customers subscribe to a plan, and the kitchen is fed automatically from it.</p>
+        <ul>
+          <li><strong>Subscribers tab:</strong> three stat cards (active subscriptions, recurring revenue per cycle, total ever subscribed), then every subscriber with their plan, what they picked for each meal, delivery details, amount and whether it's paid. Buttons: <strong>Mark paid</strong>, <strong>Pause</strong>, <strong>Resume</strong>, <strong>Cancel</strong> (asks you to confirm).</li>
+          <li><strong>Plans tab</strong> (owner only):
+            <ul style="margin-top:6px">
+              <li><strong>Discount per cycle length:</strong> a % off for Daily, Weekly and Monthly plans. Changing it only affects future subscriptions, never one already paid for.</li>
+              <li><strong>Delivery fee:</strong> a flat charge <em>per day</em> for delivery subscriptions, never discounted. Pickup plans pay none.</li>
+              <li><strong>Plans:</strong> switch a plan on/off, or delete it. A plan that has ever had a subscriber can't be deleted, so switch it to inactive instead to stop new signups.</li>
+              <li><strong>Add a plan:</strong> a name, the length (Daily / Weekly / Monthly), which meals it covers and the most items per meal. You don't set a price: it's worked out from the dishes the customer picks.</li>
+            </ul>
+          </li>
+        </ul>
+        <p><strong>What happens every day.</strong> Once an hour the system checks every active subscription and creates that day's orders from what each person picked. They land on the <strong>Orders</strong> board with a small <em>subscription</em> badge, take ingredients out of stock like any order, and you and your staff get a notification. A paused or cancelled plan produces no orders.</p>
+        <p style="margin-bottom:0"><strong>Renewal.</strong> When a cycle runs out (Daily 1 day, Weekly 7, Monthly 30) the plan rolls into the next cycle with prices and discount recalculated, and the new cycle is marked <strong>unpaid</strong> until you press <strong>Mark paid</strong>. The daily orders copy the subscription's payment status.</p>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Staff can see the subscriber list and mark paid, pause, resume or cancel. Only the owner sees the Plans tab.</div>
       </div>
     </div>
 
     <div class="chapter">
       <div class="chapter-head"><i class="ti ti-tools-kitchen-2" aria-hidden="true"></i><h3>Menu <span class="owner-only-note">Owner only</span></h3></div>
       <div class="chapter-body">
-        <p>What customers see on the Order page — the one page staff can't access.</p>
+        <p>What customers see on the Order page, and the one page staff can't access.</p>
         <ul>
-          <li><strong>Categories:</strong> Mains, Breads, Starters, Desserts, Beverages, and Custom are built in; add your own with <strong>+ New category</strong> in the item form — it appears as a new tab here and on the customer Order page automatically.</li>
-          <li><strong>Adding/editing an item:</strong> name, category, price, unit (plate, piece, kg…), description, and a cover photo.</li>
-          <li><strong>Leave price blank</strong> for a made-to-order item — use category <code>custom</code> for these (e.g. "Biryani by the kg", priced per kg). Customers order these from a dedicated form instead of tapping "Add".</li>
-          <li><strong>⭐ Special toggle:</strong> features an item in "Today's Specials" on the Order page until midnight, then it clears itself automatically — no need to remember to turn it off.</li>
-          <li><strong>🔥 Popular toggle:</strong> shows a "Popular" badge on the item's product card.</li>
-          <li><strong>In stock / Sold out toggle:</strong> hides the "Add" button from customers without deleting the item.</li>
-          <li><strong>Prep time (minutes):</strong> leave blank for anything ready to go — customers see "Ready now". Set a number for something that needs cooking time and customers see "~N min" instead, right next to the price.</li>
-          <li><strong>Recipe editor</strong> (per item): the bill of materials — how much of each inventory ingredient one unit of this item uses. This is what drives automatic stock deduction on every order.</li>
-          <li><strong>Photos</strong> (per item): up to 4 extra gallery photos beyond the cover image, shown as a swipeable carousel to customers.</li>
-          <li>Switch between <strong>list</strong> and <strong>card</strong> view with the toggle in the top-right.</li>
+          <li><strong>Categories:</strong> Mains, Breads, Starters, Desserts, Beverages and Custom are built in. Add your own with <strong>+ New category</strong> in the item form and it appears here and on the customer Order page automatically.</li>
+          <li><strong>Adding/editing an item:</strong> name, category, price, unit (plate, piece, kg…), prep time, description and a cover photo. Negative or non-numeric prices are rejected.</li>
+          <li><strong>Remove photo:</strong> while editing an item, click <strong>Remove photo</strong> (with Undo) and save to clear its cover photo. Choosing a new photo replaces it.</li>
+          <li><strong>Leave price blank</strong> for a made-to-order item. Use category <code>custom</code> for per-kg items (e.g. "Biryani by the kg", priced per kg). Customers order these from a dedicated form instead of tapping "Add".</li>
+          <li><strong>⭐ Special toggle:</strong> features an item in "Today's Specials" until midnight, then clears itself.</li>
+          <li><strong>🔥 Popular toggle:</strong> shows a "Popular" badge on the item.</li>
+          <li><strong>In stock / Sold out toggle:</strong> hides the "Add" button without deleting the item.</li>
+          <li><strong>Prep time (minutes):</strong> blank means "Ready now"; a number shows "~N min" next to the price.</li>
+          <li><strong>Recipe editor</strong> (per item): how much of each inventory ingredient one unit of the item uses. This drives automatic stock deduction. For per-kg items, the recipe is per kg.</li>
+          <li><strong>Photos</strong> (per item): up to 4 extra gallery photos, shown as a swipeable carousel.</li>
+          <li>Switch between <strong>list</strong> and <strong>card</strong> view with the toggle at the top right.</li>
         </ul>
-        <div class="callout warn">
-          <i class="ti ti-alert-triangle" aria-hidden="true"></i>
-          The dropdown also offers a dedicated <code>⭐ Today's special</code> category, for an item that should <em>never</em> appear in the regular Mains/Breads/etc. tabs. But that category alone doesn't show it to customers — you still need to flip the <strong>⭐ Special</strong> toggle on it too, or it won't appear anywhere until you do.
-        </div>
+        <div class="callout warn"><i class="ti ti-info-circle" aria-hidden="true"></i>The dropdown also offers a dedicated <code>⭐ Today's special</code> category for an item that should never appear in the regular tabs. That category alone doesn't show it to customers: you still need to flip the <strong>⭐ Special</strong> toggle on it too.</div>
       </div>
     </div>
 
     <div class="chapter">
       <div class="chapter-head"><i class="ti ti-chart-bar" aria-hidden="true"></i><h3>Reports <span class="owner-only-note">Owner only</span></h3></div>
       <div class="chapter-body">
-        <p>Revenue, expenses, and what's selling.</p>
+        <p>Revenue, expenses and what's selling. Cancelled orders are left out of revenue and best sellers, and days follow India time.</p>
         <ul>
-          <li>Stat cards: all-time revenue, expenses, profit, total orders, and a placed/delivered breakdown.</li>
-          <li><strong>7-day revenue chart</strong> — hover a bar for that day's revenue and order count.</li>
-          <li><strong>Best sellers</strong> — top items by quantity sold.</li>
-          <li><strong>Expenses:</strong> log one (description, amount, category — ingredients/utilities/rent/wages/other) and remove any later. This week's spend and profit are called out above the list.</li>
-          <li><strong>Export CSV</strong> — downloads the week's revenue, best sellers, and expenses as a spreadsheet.</li>
-          <li><strong>Print / Save as PDF</strong> — uses your browser's print dialog; the nav is hidden automatically for a clean printout.</li>
+          <li>Stat cards: all-time revenue, expenses, profit, total orders and a status breakdown.</li>
+          <li><strong>7-day revenue chart</strong> and <strong>best sellers</strong>.</li>
+          <li><strong>Ingredient cost (estimated):</strong> what the ingredients consumed by real orders cost over the last 7 and 30 days, using the cost per unit you set on the Inventory page. Ingredients with no cost on file are left out, and it's separate from the expenses you log by hand.</li>
+          <li><strong>Expenses:</strong> log one (description, amount, category) and remove any later. This week's spend and profit are shown above the list.</li>
+          <li><strong>Export CSV</strong> and <strong>Print / Save as PDF</strong> for the week.</li>
         </ul>
       </div>
     </div>
 
     <div class="chapter">
-      <div class="chapter-head"><i class="ti ti-bell" aria-hidden="true"></i><h3>Notifications</h3></div>
+      <div class="chapter-head"><i class="ti ti-settings" aria-hidden="true"></i><h3>Settings <span class="owner-only-note">Owner only</span></h3></div>
       <div class="chapter-body">
-        <p style="margin-bottom:0">The bell icon (sidebar on desktop, top bar on mobile) checks for alerts every 30 seconds — things like low stock or orders needing attention — with a red badge showing how many are waiting. Click it to see the list.</p>
+        <p>Shop-wide details you can change any time, without a developer.</p>
+        <ul>
+          <li><strong>Ordering hours &amp; delivery:</strong>
+            <ul style="margin-top:6px">
+              <li><strong>Opens / Closes</strong> and the days you're <strong>closed</strong>. "As soon as possible" orders are only accepted while open.</li>
+              <li><strong>Slot length</strong> (15 to 60 minutes), <strong>how many days ahead</strong> customers can book, and the <strong>minimum notice</strong> for a same-day slot.</li>
+              <li><strong>Delivery zones:</strong> list them nearest first. Each has a distance (km from the restaurant), a fee, a "free above" order amount (0 means the fee always applies) and a minimum order. An order goes in the first zone that covers its distance, and anything beyond the last zone isn't delivered. With no zones, delivery is free with no limit.</li>
+            </ul>
+          </li>
+          <li><strong>Shop location:</strong> the restaurant's address and exact pin. Use <strong>Use my current location</strong> while you're at the restaurant, <strong>Pick on map</strong>, or paste a Google Maps link. Delivery distance, fees and "km from restaurant" for riders all depend on this, so set it first.</li>
+          <li><strong>Payment · UPI:</strong> your UPI ID and the name shown to payers. Once set, customers with unpaid UPI/Card orders get a QR code and can upload a payment screenshot.</li>
+        </ul>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Starting values are 11:00 to 22:00, 30-minute slots, 3 days ahead, and two sample zones. Check them against how you really work before going live.</div>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-bell" aria-hidden="true"></i><h3>Notifications &amp; account safety</h3></div>
+      <div class="chapter-body">
+        <p>The bell icon (sidebar on desktop, top bar on mobile) checks for alerts every 30 seconds, like low stock or orders needing attention, with a red badge. Turn on push notifications from the sidebar to get new-order alerts on your device even when the app isn't open.</p>
+        <p>Logging out asks you to confirm. Too many wrong login attempts pause logging in for about 15 minutes.</p>
+        <p style="margin-bottom:0">Change your own password any time from <strong>My account</strong> in the sidebar (current password, then a new one of at least 8 characters). If you forget it completely, your developer can reset it with <code>npm run set-password -- email new-password</code> (run in the <code>server</code> folder). Customers change theirs from their own My account page, and you can reset a customer's from <strong>Customers</strong>.</p>
       </div>
     </div>
   </main>

@@ -1,47 +1,47 @@
-const pool = require("../config/db");
+const orders = require("../data/orders");
+const inventory = require("../data/inventory");
+const staff = require("../data/staff");
 const asyncHandler = require("../middleware/asyncHandler");
 
-// Response shape matches the reference bakery app's Dashboard.jsx exactly
-// (todaysRevenue, ordersToday, pendingOrders, staffOnShift/staffTotal,
-// lowStockCount/lowStockItems, recentOrders) plus riderName on each recent
-// order, which the bakery has no equivalent for (pickup-only, no riders).
 exports.getSummary = asyncHandler(async (req, res) => {
-  const [todayRows, allOrdersRows, lowStockRows, staffRows] = await Promise.all([
-    pool.query(
-      `select coalesce(sum(total), 0) as revenue, count(*) as order_count
-       from orders where created_at::date = current_date and status != 'cancelled'`
-    ),
-    pool.query(
-      `select o.*, s.name as rider_name from orders o left join staff s on s.id = o.rider_id
-       order by o.created_at desc`
-    ),
-    pool.query(`select * from inventory where quantity <= reorder_level`),
-    pool.query(`select * from staff`)
+  // countActive/getRecent/getActive do the filtering in SQL instead of pulling the
+  // full order history into Node on every dashboard refresh.
+  const [recentOrders, pendingCount, active, unpaid, todaysOrders, inv, staffList] = await Promise.all([
+    orders.getRecent(5),
+    orders.countActive(),
+    orders.getActive(),
+    orders.unpaidTotals(),
+    orders.getToday(),
+    inventory.getAll(),
+    staff.getAll()
   ]);
 
-  const allOrders = allOrdersRows.rows;
-  const pending = allOrders.filter((o) => !["delivered", "picked_up", "cancelled"].includes(o.status));
-  const staffOnShift = staffRows.rows.filter((s) => s.status === "clocked_in").length;
+  // Cancelled orders never became sales, so they don't count toward revenue.
+  const todaysSales = todaysOrders.filter((o) => o.status !== "cancelled");
+  const todaysRevenue = todaysSales.reduce((sum, o) => sum + (o.total || 0), 0);
+
+  const lowStock = inv.filter((i) => i.status === "low_stock" || i.status === "out_of_stock");
+  const onShift = staffList.filter((s) => s.status === "clocked_in").length;
+
+  // "What needs doing now": kitchen-side orders still in progress, oldest first so
+  // the one that's been waiting longest is at the top.
+  const inProgress = active.filter((o) => ["placed", "preparing", "ready"].includes(o.status));
+  const queue = [...inProgress].sort((a, b) => a.id - b.id);
+  const toCook = inProgress.filter((o) => o.status === "placed" || o.status === "preparing").length;
 
   res.json({
-    todaysRevenue: Number(todayRows.rows[0].revenue),
-    ordersToday: Number(todayRows.rows[0].order_count),
-    pendingOrders: pending.length,
-    staffOnShift,
-    staffTotal: staffRows.rows.length,
-    lowStockCount: lowStockRows.rows.length,
-    lowStockItems: lowStockRows.rows.map((r) => ({ id: r.id, name: r.name, quantity: Number(r.quantity), unit: r.unit })),
-    recentOrders: allOrders.slice(0, 5).map((r) => ({
-      id: r.id,
-      customerName: r.customer_name,
-      total: Number(r.total),
-      status: r.status,
-      channel: r.channel,
-      items: r.items,
-      pickupTime: r.channel === "dine_in" ? `Table ${r.table_number || "—"}` : r.delivery_address || "Pickup",
-      paymentStatus: r.payment_status,
-      paymentMethod: r.payment_method,
-      riderName: r.rider_name
-    }))
+    todaysRevenue,
+    ordersToday: todaysSales.length,
+    pendingOrders: pendingCount,
+    staffOnShift: onShift,
+    staffTotal: staffList.length,
+    lowStockCount: lowStock.length,
+    lowStockItems: lowStock,
+    recentOrders,
+    queue: queue.slice(0, 8),
+    activeCount: inProgress.length,
+    toCook,
+    awaitingPayment: unpaid,
+    staff: staffList.map((s) => ({ id: s.id, name: s.name, role: s.role, shift: s.shift, status: s.status }))
   });
 });

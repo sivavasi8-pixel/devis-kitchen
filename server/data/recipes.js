@@ -1,8 +1,8 @@
 const pool = require("../config/db");
 
 // Ingredient BOM for a menu item, joined with the ingredient's name/unit for display.
-exports.getForMenuItem = async (menuItemId) => {
-  const { rows } = await pool.query(
+exports.getForMenuItem = async (menuItemId, db = pool) => {
+  const { rows } = await db.query(
     `select ri.inventory_id as "inventoryId", ri.qty_per_unit as "qtyPerUnit",
             inv.name as "ingredientName", inv.unit as "ingredientUnit"
      from recipe_ingredients ri

@@ -180,3 +180,15 @@ Render dashboard.
 
 **Before this goes anywhere public:** rotate `JWT_SECRET`, and replace the
 seeded owner/staff/rider passwords in `server/db/schema.sql`.
+
+## Features ported from GARNERS Bakery
+
+- **Security & ops**: security headers, per-IP rate limit on auth routes, production refuses a weak `JWT_SECRET` and the public demo passwords, per-request account check, idempotent startup migrations (`server/db/migrate.js`), `npm run set-password` script.
+- **Accounts**: 6-digit PIN at signup, forgot-password via email + PIN (`/reset-password`), change password/PIN and saved addresses on `/my-account`, admin Customers page (`/customers`) to reset a customer's PIN or password.
+- **Orders**: prices always computed on the server; transactional stock deduct/restock with an inventory movement history and ingredient costs; orders board with search and urgent flag; payment receipt upload with a UPI QR (set the VPA in Settings).
+- **Delivery**: delivery coordinates (saved address, map pin, GPS or geocoding), distance from the restaurant, nearby-order hints, atomic rider claim/release, Navigate and call links, cash-to-collect.
+- **Settings** (`/settings`, owner): UPI details and restaurant location. **Dashboard** moved to `/dashboard`; `/` redirects to the menu.
+
+- **Ordering hours, time slots and delivery zones** (owner-editable in Settings): opening hours, closed weekdays, slot length, days ahead and same-day notice; customers order ASAP while open or book a slot. Delivery fee, minimum order and free-above threshold come from distance-based zones, priced on the server (`server/services/ordering.js`; quote endpoint `POST /api/orders/quote`).
+
+Not ported (bakery-specific): the custom cake form and the delivery-charges poster.

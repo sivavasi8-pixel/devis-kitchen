@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../auth/AuthContext";
+import { scheduleLabel } from "../schedule";
 
 // Where "back" should go depends on who's looking at the receipt — this page
 // has no nav shell (it's print-friendly), so it's the only way back.
@@ -67,6 +68,12 @@ export default function Receipt() {
           </div>
         ))}
 
+        {order.deliveryFee > 0 && (
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginTop: "6px" }}>
+            <span>Delivery{order.deliveryZone ? ` (${order.deliveryZone})` : ""}</span>
+            <span>₹{order.deliveryFee}</span>
+          </div>
+        )}
         <div style={{ borderTop: "1px dashed var(--border)", marginTop: "10px", paddingTop: "10px", display: "flex", justifyContent: "space-between", fontSize: "15px", fontWeight: 500 }}>
           <span>Total</span>
           <span>₹{order.total}</span>
@@ -81,6 +88,12 @@ export default function Receipt() {
             <span>Status</span>
             <span style={{ textTransform: "capitalize" }}>{order.status.replace(/_/g, " ")}</span>
           </div>
+          {order.channel !== "dine_in" && (
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2px" }}>
+              <span>When</span>
+              <span>{scheduleLabel(order) || "As soon as possible"}</span>
+            </div>
+          )}
           {order.channel === "delivery" && (
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2px" }}>
               <span>Deliver to</span>
@@ -91,6 +104,12 @@ export default function Receipt() {
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2px" }}>
               <span>Table</span>
               <span>{order.tableNumber || "—"}</span>
+            </div>
+          )}
+          {order.channel === "delivery" && order.deliveryPhone && (
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2px" }}>
+              <span>Phone</span>
+              <span>{order.deliveryPhone}</span>
             </div>
           )}
           {order.riderName && (

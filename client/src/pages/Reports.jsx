@@ -239,6 +239,19 @@ export default function AdminReports() {
         </div>
       </div>
 
+      <div className="admin-form-panel" style={{ marginBottom: 18 }}>
+        <p className="admin-section-title" style={{ marginBottom: 4 }}>Ingredient cost (estimated)</p>
+        <p style={{ fontSize: 12, color: "var(--a-text-secondary)" }}>
+          Computed from actual recipe-driven consumption × each ingredient's cost (set on the Inventory page) —
+          separate from the hand-logged "ingredients" expenses below, and only counts ingredients that have a
+          cost on file.
+        </p>
+        <StatGrid columns={2}>
+          <StatCard label="Last 7 days" value={`₹${(data.ingredientCostLast7Days || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} />
+          <StatCard label="Last 30 days" value={`₹${(data.ingredientCostLast30Days || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} />
+        </StatGrid>
+      </div>
+
       <div className="admin-form-panel">
         <p className="admin-section-title" style={{ marginBottom: 4 }}>Expenses</p>
         <p style={{ fontSize: 12, color: "var(--a-text-secondary)", marginBottom: 14 }}>

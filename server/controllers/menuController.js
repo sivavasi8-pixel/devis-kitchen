@@ -1,5 +1,38 @@
+const crypto = require("crypto");
 const menuItems = require("../data/menuItems");
 const asyncHandler = require("../middleware/asyncHandler");
+
+const badRequest = (message) => Object.assign(new Error(message), { status: 400 });
+
+// Serves an uploaded photo with an ETag so a replaced image is picked up immediately.
+// Cache-Control: no-cache makes the browser always revalidate — cheap (just a hash
+// compare, 304 with no body) rather than blindly trusting a time-based cache, which
+// would let a replaced photo show stale at the same URL.
+const sendImage = (req, res, image) => {
+  if (!image) return res.status(404).end();
+  const etag = `"${crypto.createHash("sha1").update(image.data).digest("hex")}"`;
+  res.set("ETag", etag);
+  res.set("Cache-Control", "no-cache");
+  if (req.headers["if-none-match"] === etag) return res.status(304).end();
+  res.set("Content-Type", image.mime || "application/octet-stream");
+  res.send(image.data);
+};
+
+// Throws instead of silently saving NaN or a negative number, which would either
+// get stored as-is or hit Postgres's "invalid input syntax for type numeric" and
+// surface as a generic 500. Blank means made-to-order (no fixed price).
+const parsePrice = (raw) => {
+  if (raw === "" || raw == null) return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0) throw badRequest("price must be a non-negative number, or blank for made-to-order");
+  return n;
+};
+
+exports.getItem = asyncHandler(async (req, res) => {
+  const item = await menuItems.getById(req.params.id);
+  if (!item) return res.status(404).json({ error: "Item not found" });
+  res.json({ item });
+});
 
 exports.getMenu = asyncHandler(async (req, res) => {
   const { category } = req.query;
@@ -7,10 +40,7 @@ exports.getMenu = asyncHandler(async (req, res) => {
 });
 
 exports.getImage = asyncHandler(async (req, res) => {
-  const img = await menuItems.getImage(req.params.id);
-  if (!img) return res.status(404).end();
-  res.set("Content-Type", img.mime);
-  res.send(img.data);
+  sendImage(req, res, await menuItems.getImage(req.params.id));
 });
 
 // Same "blank means the sensible default" convention as price (blank price =
@@ -23,7 +53,7 @@ exports.createMenuItem = asyncHandler(async (req, res) => {
   if (!name || !category || !unit) {
     return res.status(400).json({ error: "name, category and unit are required" });
   }
-  const parsedPrice = price === "" || price === undefined || price === null ? null : Number(price);
+  const parsedPrice = parsePrice(price);
   const item = await menuItems.create({
     name,
     category,
@@ -41,8 +71,7 @@ exports.createMenuItem = asyncHandler(async (req, res) => {
 
 exports.updateMenuItem = asyncHandler(async (req, res) => {
   const fields = { ...req.body };
-  if (fields.price === "") fields.price = null;
-  else if (fields.price !== undefined) fields.price = Number(fields.price);
+  if (fields.price !== undefined) fields.price = parsePrice(fields.price);
   if (fields.prepMinutes !== undefined) fields.prepMinutes = parseMinutes(fields.prepMinutes);
   if (req.file) {
     fields.imageBuffer = req.file.buffer;
@@ -107,11 +136,7 @@ exports.setRecipe = asyncHandler(async (req, res) => {
 // --- gallery images (extra photos beyond the cover image) ---
 
 exports.getGalleryImage = asyncHandler(async (req, res) => {
-  const img = await menuItems.getGalleryImage(req.params.id, req.params.imageId);
-  if (!img) return res.status(404).end();
-  res.set("Content-Type", img.mime || "application/octet-stream");
-  res.set("Cache-Control", "public, max-age=3600");
-  res.send(img.data);
+  sendImage(req, res, await menuItems.getGalleryImage(req.params.id, req.params.imageId));
 });
 
 exports.addGalleryImage = asyncHandler(async (req, res) => {

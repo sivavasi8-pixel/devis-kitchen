@@ -3,7 +3,7 @@ import { useAuth } from "./AuthContext";
 
 // Where to send someone who's logged in but not allowed on the page they hit —
 // must never point at another role-gated route, or a mismatched role loops forever.
-const homeForRole = (role) => (role === "customer" ? "/order" : role === "rider" ? "/rider" : "/");
+const homeForRole = (role) => (role === "customer" ? "/order" : role === "rider" ? "/rider" : "/dashboard");
 
 export default function ProtectedRoute({ roles, children }) {
   const { user, ready } = useAuth();

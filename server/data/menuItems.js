@@ -17,8 +17,10 @@ const mapRow = (row) =>
     unit: row.unit,
     inStock: row.in_stock,
     description: row.description,
-    hasImage: !!row.image_data,
-    imageUrl: row.image_data ? `/api/menu/${row.id}/image` : null,
+    // `has_image` is only present on rows from SELECT_WITH_GALLERY (which deliberately never
+    // selects the bytea); a raw INSERT/UPDATE ... RETURNING * row still carries image_data itself.
+    hasImage: row.has_image !== undefined ? row.has_image : !!row.image_data,
+    imageUrl: (row.has_image !== undefined ? row.has_image : !!row.image_data) ? `/api/menu/${row.id}/image` : null,
     isVeg: row.is_veg,
     spiceLevel: row.spice_level,
     isSpecial: row.is_special && (!row.special_until || new Date(row.special_until) > new Date()),
@@ -30,8 +32,12 @@ const mapRow = (row) =>
   };
 
 // Every row-returning query needs the same gallery aggregation, so it lives once here.
+// Deliberately never selects image_data/image_mime (each photo can be up to 5MB): every menu
+// load was downloading every item's full photo just to render a list. has_image is enough to
+// know whether to request the dedicated image endpoint.
 const SELECT_WITH_GALLERY = `
-  select m.*,
+  select m.id, m.name, m.category, m.price, m.unit, m.in_stock, m.description, m.is_veg, m.spice_level,
+    m.is_special, m.special_until, m.is_popular, m.prep_minutes, (m.image_data is not null) as has_image,
     coalesce(
       json_agg(json_build_object('id', gi.id) order by gi.sort_order, gi.id)
         filter (where gi.id is not null),
@@ -64,6 +70,23 @@ exports.getSubscriptionEligible = async () => {
 exports.getById = async (id) => {
   const { rows } = await pool.query(`${SELECT_WITH_GALLERY} where m.id = $1 group by m.id`, [id]);
   return mapRow(rows[0]);
+};
+
+// Lean lookup used by order creation to price items server-side — the prices a
+// browser sends are never trusted, only the ids.
+exports.getForPricing = async (ids, db = pool) => {
+  const { rows } = await db.query(
+    "select id, name, category, price, unit, in_stock from menu_items where id = any($1::int[])",
+    [ids.map(Number)]
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    category: r.category,
+    price: r.price === null ? null : Number(r.price),
+    unit: r.unit,
+    inStock: r.in_stock
+  }));
 };
 
 exports.getImage = async (id) => {
@@ -112,6 +135,10 @@ exports.update = async (id, fields) => {
     values.push(fields.imageBuffer);
     setClauses.push(`image_mime = $${i++}`);
     values.push(fields.imageMime || "image/jpeg");
+  } else if (fields.removeImage === true || fields.removeImage === "true") {
+    // Explicit opt-in to clear the cover photo back to "no photo". A plain field edit never
+    // wipes it, and there was previously no way to remove one once set, only replace it.
+    setClauses.push("image_data = null", "image_mime = null");
   }
   if (!setClauses.length) return exports.getById(id);
 

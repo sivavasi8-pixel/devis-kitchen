@@ -16,7 +16,7 @@
 
   --text-primary: var(--charcoal);
   --text-secondary: #6e6558;
-  --text-muted: #a1978a;
+  --text-muted: #857b6c; /* darkened from #a1978a to pass text contrast on the cream background */
   --text-inverse: var(--cream);
 
   --surface-0: var(--cream);
@@ -96,3 +96,6 @@ img { max-width: 100%; display: block; }
 @media (min-width: 960px) {
   .page { padding: 32px 32px; }
 }
+
+/* Visible keyboard focus everywhere */
+:focus-visible { outline: 2px solid var(--gold, #b8925a); outline-offset: 2px; }

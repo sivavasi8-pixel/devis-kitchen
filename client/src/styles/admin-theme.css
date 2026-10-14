@@ -22,6 +22,12 @@
   --a-danger-bg: #fbe9e7;
   --a-danger-text: #b3401f;
   --a-radius: 8px;
+  --a-radius-lg: 12px;
+  --a-green-soft: #e6eee8;
+  --a-panel-sunk: #eceee9;
+  --a-border-soft: #edeeeb;
+  --a-neutral-bg: #e9ebe7;
+  --a-neutral-text: #3b423e;
   --a-sidebar-w: 220px;
   --a-topbar-h: 56px;
   --a-tabbar-h: 58px;
@@ -35,3 +41,34 @@
 .admin-root table { border-collapse: collapse; width: 100%; }
 .admin-root button, .admin-root select, .admin-root input { font-family: var(--font-body); }
 .admin-root button { cursor: pointer; }
+.admin-root textarea { font-family: var(--font-body); }
+
+/* Shared admin buttons and small controls - pages can use these instead of one-off inline styles. */
+.a-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 36px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  border: 1px solid var(--a-green); background: var(--a-panel); color: var(--a-green);
+  text-decoration: none; white-space: nowrap;
+}
+.a-btn:hover { background: var(--a-green-soft); }
+.a-btn.primary { background: var(--a-green); color: #fff; border-color: var(--a-green); }
+.a-btn.primary:hover { background: #2f5640; }
+.a-btn.quiet { border-color: var(--a-border); color: var(--a-text-primary); font-weight: 500; }
+.a-btn.danger { border-color: var(--a-danger-bg); background: var(--a-danger-bg); color: var(--a-danger-text); }
+.a-btn:disabled { opacity: 0.55; cursor: default; }
+
+.admin-select-sm {
+  min-height: 34px; border: 1px solid var(--a-border); border-radius: 8px; padding: 0 10px;
+  font-size: 13px; background: var(--a-panel); color: var(--a-text-primary);
+}
+.admin-btn-xs {
+  min-height: 32px; padding: 0 10px; font-size: 12px; font-weight: 500; white-space: nowrap;
+  border: 1px solid var(--a-border); border-radius: 8px; background: var(--a-panel); color: var(--a-text-primary);
+}
+.admin-btn-xs:hover { border-color: var(--a-green); color: var(--a-green); }
+.admin-btn-xs.danger { color: var(--a-danger-text); }
+.admin-btn-xs.danger:hover { border-color: var(--a-danger-text); }
+.admin-btn-xs.active { background: var(--a-green-soft); border-color: var(--a-green); color: var(--a-green); }
+
+/* Shared section heading used across admin pages */
+.admin-section-title { font-size: 14px; font-weight: 600; margin: 0 0 10px; }

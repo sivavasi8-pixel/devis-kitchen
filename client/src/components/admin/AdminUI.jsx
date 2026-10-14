@@ -40,12 +40,15 @@ export function StatGrid({ columns = 4, children }) {
   );
 }
 
-export function StatCard({ label, value, sub, warn }) {
+// tone: undefined (neutral), "warn" (needs attention) or "danger" (money/stock at risk).
+// `warn` stays supported as a boolean for pages written before tones existed.
+export function StatCard({ label, value, sub, warn, tone }) {
+  const t = tone || (warn ? "warn" : undefined);
   return (
     <div className={`admin-stat-card${warn ? " warn" : ""}`}>
       <p className="admin-stat-label">{label}</p>
       <p className="admin-stat-value">{value}</p>
-      {sub && <p className={`admin-stat-sub${warn ? " warn" : ""}`}>{sub}</p>}
+      {sub && <p className={`admin-stat-sub${t ? ` ${t}` : ""}`}>{sub}</p>}
       <style>{`
         .admin-stat-card { background: var(--a-panel); border: 1px solid var(--a-border); border-radius: var(--a-radius); padding: 14px; }
         .admin-stat-card.warn { background: var(--a-warning-bg); border-color: #eddca6; }
@@ -53,6 +56,7 @@ export function StatCard({ label, value, sub, warn }) {
         .admin-stat-value { margin: 0; font-size: 22px; font-family: var(--font-display); }
         .admin-stat-sub { margin: 6px 0 0; font-size: 11px; color: var(--a-text-secondary); }
         .admin-stat-sub.warn { color: var(--a-danger-text); }
+        .admin-stat-sub.danger { color: var(--a-danger-text); font-weight: 600; }
       `}</style>
     </div>
   );
@@ -62,6 +66,11 @@ export function StatCard({ label, value, sub, warn }) {
 // (see StatusBadge.jsx, the customer-facing equivalent of this component).
 const pillMap = {
   placed: { bg: "var(--a-border)", fg: "var(--a-text-secondary)", label: "placed" },
+  preparing: { bg: "var(--a-warning-bg)", fg: "var(--a-warning-text)", label: "preparing" },
+  out_for_delivery: { bg: "var(--a-success-bg)", fg: "var(--a-success-text)", label: "out for delivery" },
+  picked_up: { bg: "var(--a-border)", fg: "var(--a-text-secondary)", label: "picked up" },
+  paid: { bg: "var(--a-success-bg)", fg: "var(--a-success-text)", label: "paid" },
+  unpaid: { bg: "var(--a-danger-bg)", fg: "var(--a-danger-text)", label: "unpaid" },
   baking: { bg: "var(--a-warning-bg)", fg: "var(--a-warning-text)", label: "baking" },
   ready: { bg: "var(--a-success-bg)", fg: "var(--a-success-text)", label: "ready" },
   delivered: { bg: "var(--a-border)", fg: "var(--a-text-secondary)", label: "delivered" },
@@ -75,18 +84,24 @@ const pillMap = {
   out_of_stock: { bg: "var(--a-danger-bg)", fg: "var(--a-danger-text)", label: "out of stock" }
 };
 
-export function StatusPill({ status }) {
+export function StatusPill({ status, label }) {
   const p = pillMap[status] || { bg: "var(--a-border)", fg: "var(--a-text-secondary)", label: status };
   return (
     <span style={{ fontSize: 11, padding: "3px 9px", borderRadius: 5, whiteSpace: "nowrap", background: p.bg, color: p.fg }}>
-      {p.label}
+      {label || p.label}
     </span>
   );
 }
 
-export function ListPanel({ children }) {
+export function ListPanel({ title, action, children }) {
   return (
     <div style={{ background: "var(--a-panel)", border: "1px solid var(--a-border)", borderRadius: "var(--a-radius)", overflow: "hidden" }}>
+      {title && (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 14px", borderBottom: "1px solid var(--a-border)" }}>
+          <h2 style={{ margin: 0, fontFamily: "var(--font-body)", fontSize: 14, fontWeight: 600 }}>{title}</h2>
+          {action}
+        </div>
+      )}
       {children}
     </div>
   );

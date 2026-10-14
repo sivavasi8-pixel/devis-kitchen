@@ -7,8 +7,17 @@ export default function CustomerNav() {
   const { user, logout } = useAuth();
   const { count: cartCount } = useCart();
   const navigate = useNavigate();
+  // Owner/staff/riders land on this storefront too (the root URL redirects here), so
+  // give them a way back to their own console.
+  const consoleLink =
+    user?.role === "owner" || user?.role === "staff"
+      ? { to: "/dashboard", label: "Shop console", iconClass: "ti-layout-dashboard" }
+      : user?.role === "rider"
+        ? { to: "/rider", label: "My deliveries", iconClass: "ti-moped" }
+        : null;
 
   const handleLogout = () => {
+    if (!window.confirm("Log out of your account?")) return;
     logout();
     navigate("/login");
   };
@@ -16,7 +25,12 @@ export default function CustomerNav() {
   const customerTabs = [
     { to: "/order", label: "Order", iconClass: "ti-shopping-bag" },
     { to: "/meal-plans", label: "Meal Plans", iconClass: "ti-calendar" },
-    ...(user?.role === "customer" ? [{ to: "/my-orders", label: "My orders", iconClass: "ti-receipt" }] : []),
+    ...(user?.role === "customer"
+      ? [
+          { to: "/my-orders", label: "My orders", iconClass: "ti-receipt" },
+          { to: "/my-account", label: "Account", iconClass: "ti-user" }
+        ]
+      : []),
   ];
 
   return (
@@ -39,6 +53,12 @@ export default function CustomerNav() {
             <NavLink to="/meal-plans" className={({ isActive }) => `topbar-link${isActive ? " active" : ""}`}>Meal Plans</NavLink>
             {user?.role === "customer" && (
               <NavLink to="/my-orders" className={({ isActive }) => `topbar-link${isActive ? " active" : ""}`}>My orders</NavLink>
+            )}
+            {user?.role === "customer" && (
+              <NavLink to="/my-account" className={({ isActive }) => `topbar-link${isActive ? " active" : ""}`}>My account</NavLink>
+            )}
+            {consoleLink && (
+              <NavLink to={consoleLink.to} className="topbar-link">{consoleLink.label}</NavLink>
             )}
             <a href="/handbook-customer.html" target="_blank" rel="noopener noreferrer" className="topbar-link">Guide</a>
             {user?.role === "customer" && <PushToggle className="topbar-link" showIcon={false} />}
@@ -73,6 +93,12 @@ export default function CustomerNav() {
             <span>{tab.label}</span>
           </NavLink>
         ))}
+        {consoleLink && (
+          <NavLink to={consoleLink.to} className="tabbar-item">
+            <span className="tabbar-icon-wrap"><i className={`ti ${consoleLink.iconClass}`} aria-hidden="true" /></span>
+            <span>{consoleLink.label}</span>
+          </NavLink>
+        )}
         <a href="/handbook-customer.html" target="_blank" rel="noopener noreferrer" className="tabbar-item">
           <i className="ti ti-book" aria-hidden="true" />
           <span>Guide</span>

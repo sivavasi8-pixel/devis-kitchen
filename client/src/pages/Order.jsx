@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../auth/AuthContext";
 import { useCart } from "../cart/CartContext";
+import AddressPicker from "../components/AddressPicker";
+import PayWithUpi from "../components/PayWithUpi";
+import { paymentLabel } from "../paymentLabel";
 
 // Known categories get a curated label/icon; anything else still shows up as
 // a tab automatically with a generic icon — mirrors the bakery's derive-from-
@@ -181,6 +184,19 @@ export default function Order() {
   const [channel, setChannel] = useState("delivery");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [deliveryPhone, setDeliveryPhone] = useState("");
+  const [deliveryLat, setDeliveryLat] = useState(null);
+  const [deliveryLng, setDeliveryLng] = useState(null);
+  // A newly typed address the customer chose to save; stored only after the order
+  // itself succeeds, so a failed save never blocks checkout.
+  const [addressToSave, setAddressToSave] = useState(null);
+  const [settings, setSettings] = useState(null);
+  // Opening hours / bookable slots (public), the chosen timing, and the live delivery-fee quote.
+  const [storeStatus, setStoreStatus] = useState(null);
+  const [scheduleMode, setScheduleMode] = useState("asap"); // "asap" | "later"
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleSlot, setScheduleSlot] = useState("");
+  const [quote, setQuote] = useState(null);
+  const [quoteError, setQuoteError] = useState(null);
   const [tableNumber, setTableNumber] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [placing, setPlacing] = useState(false);
@@ -195,6 +211,8 @@ export default function Order() {
 
   useEffect(() => {
     api.getMenu().then((d) => setMenu(d.items)).catch((e) => setError(e.message));
+    api.getStoreStatus().then(setStoreStatus).catch(() => {}); // without it checkout falls back to ASAP
+    api.getSettings().then(setSettings).catch(() => {}); // the UPI pay card just doesn't show if this fails
   }, []);
 
   useEffect(() => {
@@ -207,6 +225,40 @@ export default function Order() {
       .then((d) => setActiveOrder(d.orders.find((o) => ACTIVE_STATUSES.includes(o.status)) || null))
       .catch(() => {});
   }, [canOrder]);
+
+  // Closed right now: ASAP is not offered, so default to booking a slot.
+  useEffect(() => {
+    if (storeStatus && !storeStatus.openNow) setScheduleMode("later");
+  }, [storeStatus]);
+
+  const usesSchedule = canOrder && channel !== "dine_in";
+  const bookableDays = storeStatus ? storeStatus.days.filter((d) => !d.closed && d.slots.length > 0) : [];
+  const selectedDay = bookableDays.find((d) => d.date === scheduleDate);
+
+  // Delivery fee for the cart + drop point, from the server (same rules checkout enforces).
+  const cartKey = JSON.stringify(cart.map((c) => [c.menuItemId, c.qty, c.size]));
+  useEffect(() => {
+    setQuote(null);
+    setQuoteError(null);
+    if (!canOrder || channel !== "delivery" || cart.length === 0) return;
+    let cancelled = false;
+    const t = setTimeout(() => {
+      api
+        .quoteOrder({
+          items: cart.map((c) => ({ menuItemId: c.menuItemId, qty: c.qty, size: c.size })),
+          channel,
+          deliveryLat,
+          deliveryLng
+        })
+        .then((q) => !cancelled && setQuote(q))
+        .catch((e) => !cancelled && setQuoteError(e.message));
+    }, 400);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canOrder, channel, cartKey, deliveryLat, deliveryLng]);
 
   const categories = useMemo(() => {
     if (!menu) return [];
@@ -241,12 +293,21 @@ export default function Order() {
       name: `Biryani by the kg — ${weight}kg${protein ? `, ${protein}` : ""}`,
       price,
       qty: 1,
+      size: weight, // the server prices this line as rate x kg; `price` is display only
       note
     });
   };
 
   const handleCheckout = async () => {
     setCheckoutError(null);
+    if (usesSchedule && scheduleMode === "later" && (!scheduleDate || !scheduleSlot)) {
+      setCheckoutError("Please choose a day and time");
+      return;
+    }
+    if (channel === "delivery" && quoteError) {
+      setCheckoutError(quoteError);
+      return;
+    }
     if (channel === "delivery" && !deliveryAddress.trim()) {
       setCheckoutError("Please enter a delivery address");
       return;
@@ -254,16 +315,24 @@ export default function Order() {
     setPlacing(true);
     try {
       const order = await api.createOrder({
-        items: cart.map((c) => ({ menuItemId: c.menuItemId, name: c.name, qty: c.qty, price: c.price, note: c.note })),
-        total,
+        items: cart.map((c) => ({ menuItemId: c.menuItemId, name: c.name, qty: c.qty, size: c.size, note: c.note })),
         channel,
         paymentMethod,
         deliveryAddress: channel === "delivery" ? deliveryAddress : undefined,
         deliveryPhone: channel === "delivery" ? deliveryPhone : undefined,
+        scheduleDate: usesSchedule && scheduleMode === "later" ? scheduleDate : undefined,
+        scheduleSlot: usesSchedule && scheduleMode === "later" ? scheduleSlot : undefined,
+        deliveryLat: channel === "delivery" ? deliveryLat : undefined,
+        deliveryLng: channel === "delivery" ? deliveryLng : undefined,
         tableNumber: channel === "dine_in" ? tableNumber : undefined
       });
       setPlacedOrder(order.order);
       setActiveOrder(order.order);
+      // Best-effort: a failed save shouldn't undo an order that already succeeded.
+      if (channel === "delivery" && addressToSave) {
+        api.createAddress(addressToSave).catch(() => {});
+        setAddressToSave(null);
+      }
       clearCart();
       setDeliveryAddress("");
       setDeliveryPhone("");
@@ -273,6 +342,14 @@ export default function Order() {
     } finally {
       setPlacing(false);
     }
+  };
+
+  const handleAddressChange = (sel) => {
+    setDeliveryAddress(sel.address);
+    setDeliveryLat(sel.lat);
+    setDeliveryLng(sel.lng);
+    if (sel.phone) setDeliveryPhone(sel.phone);
+    setAddressToSave(sel.willSave ? { label: sel.label, address: sel.address, phone: sel.phone, lat: sel.lat, lng: sel.lng } : null);
   };
 
   const scrollToCart = () => cartRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -417,8 +494,9 @@ export default function Order() {
               <p className="placed-order-title">Order #{placedOrder.id} placed!</p>
               <p className="placed-order-meta">
                 Status: {placedOrder.status.replace(/_/g, " ")} · {placedOrder.channel.replace("_", "-")} · Payment:{" "}
-                {placedOrder.paymentStatus === "paid" ? "paid" : "pay on " + (channel === "delivery" ? "delivery" : "pickup")}
+                {paymentLabel(placedOrder).toLowerCase()}
               </p>
+              {placedOrder.paymentMethod !== "cash" && <PayWithUpi order={placedOrder} settings={settings} />}
               <Link to={`/receipt/${placedOrder.id}`} className="btn-checkout" style={{ display: "block", textAlign: "center", textDecoration: "none", marginBottom: "8px" }}>
                 View / print receipt
               </Link>
@@ -455,7 +533,23 @@ export default function Order() {
                 ))}
               </div>
 
-              {cart.length > 0 && (
+              {/* Logged-out visitors see a clear login card right after their items, not a long form
+                  they fill in before hitting a wall. The cart survives the trip to /login. */}
+              {!canOrder && cart.length > 0 && (
+                <div className="login-gate">
+                  <i className="ti ti-lock" aria-hidden="true" style={{ fontSize: 26, color: "var(--green)" }} />
+                  <p className="login-gate-title">Log in to place your order</p>
+                  <p className="login-gate-sub">Your cart stays right here while you sign in.</p>
+                  <Link to="/login" state={{ from: "/order" }} className="btn-checkout" style={{ display: "block", textAlign: "center", textDecoration: "none" }}>
+                    Log in
+                  </Link>
+                  <Link to="/signup" className="btn-secondary" style={{ display: "block", textAlign: "center", textDecoration: "none" }}>
+                    Create an account
+                  </Link>
+                </div>
+              )}
+
+              {canOrder && cart.length > 0 && (
                 <>
                   <select value={channel} onChange={(e) => setChannel(e.target.value)} className="field-input">
                     <option value="delivery">Delivery</option>
@@ -464,16 +558,10 @@ export default function Order() {
                   </select>
                   {channel === "delivery" && (
                     <>
-                      <textarea
-                        placeholder="Delivery address"
-                        value={deliveryAddress}
-                        onChange={(e) => setDeliveryAddress(e.target.value)}
-                        className="field-input"
-                        rows={2}
-                      />
+                      <AddressPicker onChange={handleAddressChange} fallbackPhone={deliveryPhone} />
                       <input
                         type="text"
-                        placeholder="Phone (optional)"
+                        placeholder="Phone for the rider"
                         value={deliveryPhone}
                         onChange={(e) => setDeliveryPhone(e.target.value)}
                         className="field-input"
@@ -489,6 +577,56 @@ export default function Order() {
                       className="field-input"
                     />
                   )}
+                  {usesSchedule && (
+                    <div className="schedule-box">
+                      <span className="field-label">When do you want it?</span>
+                      <label className="schedule-opt">
+                        <input
+                          type="radio"
+                          name="schedule"
+                          checked={scheduleMode === "asap"}
+                          disabled={storeStatus && !storeStatus.openNow}
+                          onChange={() => setScheduleMode("asap")}
+                        />
+                        As soon as possible
+                        {storeStatus && !storeStatus.openNow && <span className="schedule-hint"> · closed right now</span>}
+                      </label>
+                      <label className="schedule-opt">
+                        <input type="radio" name="schedule" checked={scheduleMode === "later"} onChange={() => setScheduleMode("later")} />
+                        Choose a time
+                      </label>
+                      {scheduleMode === "later" &&
+                        (bookableDays.length === 0 ? (
+                          <p className="schedule-hint">No time slots are available right now.</p>
+                        ) : (
+                          <>
+                            <select
+                              value={scheduleDate}
+                              onChange={(e) => {
+                                setScheduleDate(e.target.value);
+                                setScheduleSlot("");
+                              }}
+                              className="field-input"
+                              aria-label="Day"
+                            >
+                              <option value="">Pick a day</option>
+                              {bookableDays.map((d) => <option key={d.date} value={d.date}>{d.label}</option>)}
+                            </select>
+                            <select
+                              value={scheduleSlot}
+                              onChange={(e) => setScheduleSlot(e.target.value)}
+                              className="field-input"
+                              aria-label="Time"
+                              disabled={!selectedDay}
+                            >
+                              <option value="">Pick a time</option>
+                              {(selectedDay ? selectedDay.slots : []).map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                            </select>
+                          </>
+                        ))}
+                      {storeStatus && <p className="schedule-hint">Open {storeStatus.open} – {storeStatus.close}</p>}
+                    </div>
+                  )}
                   <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="field-input">
                     {paymentOptions.map((p) => (
                       <option key={p.id} value={p.id}>{p.label}</option>
@@ -497,9 +635,19 @@ export default function Order() {
                 </>
               )}
 
+              {channel === "delivery" && cart.length > 0 && canOrder && (
+                <div className="cart-fee-row">
+                  <span>
+                    Delivery{quote && quote.deliveryZone ? ` · ${quote.deliveryZone}` : ""}
+                    {quote && quote.estimated ? " (estimated, pick a location for an exact fee)" : ""}
+                  </span>
+                  <span>{quoteError ? "—" : quote ? (quote.deliveryFee ? `₹${quote.deliveryFee}` : "Free") : "…"}</span>
+                </div>
+              )}
+              {quoteError && <p className="checkout-error">{quoteError}</p>}
               <div className="cart-total-row">
                 <span className="cart-total-label">Total</span>
-                <span className="cart-total-value">₹{total}</span>
+                <span className="cart-total-value">₹{total + (channel === "delivery" && quote ? quote.deliveryFee : 0)}</span>
               </div>
 
               {checkoutError && <p className="checkout-error">{checkoutError}</p>}
@@ -511,16 +659,7 @@ export default function Order() {
                   </button>
                   {cart.length > 0 && <p className="checkout-note">We start cooking once you order — thanks for your patience!</p>}
                 </>
-              ) : (
-                cart.length > 0 && (
-                  <p className="login-prompt">
-                    <Link to="/login" state={{ from: "/order" }}>Log in</Link>
-                    {" "}or{" "}
-                    <Link to="/signup">create an account</Link>
-                    {" "}to check out — your cart stays right here.
-                  </p>
-                )
-              )}
+              ) : null}
             </>
           )}
         </aside>
@@ -735,6 +874,14 @@ export default function Order() {
         }
         .field-label { font-size: 11px; color: var(--text-secondary); }
 
+        .login-gate { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 16px 8px; }
+        .login-gate-title { margin: 0; font-weight: 600; font-size: 15px; }
+        .login-gate-sub { margin: 0 0 6px; font-size: 12.5px; color: var(--text-secondary); }
+        .login-gate a { width: 100%; box-sizing: border-box; }
+        .schedule-box { margin-bottom: 10px; }
+        .schedule-opt { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; }
+        .schedule-hint { margin: 4px 0 0; font-size: 11.5px; color: var(--text-secondary); }
+        .cart-fee-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--text-secondary); margin-top: 8px; }
         .cart-total-row { display: flex; justify-content: space-between; margin: 12px 0; }
         .cart-total-label { font-size: 13px; color: var(--text-secondary); }
         .cart-total-value { font-size: 16px; font-weight: 500; }

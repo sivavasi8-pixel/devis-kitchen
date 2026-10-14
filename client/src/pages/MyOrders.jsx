@@ -2,17 +2,33 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
 import StatusBadge from "../components/StatusBadge";
+import PayWithUpi from "../components/PayWithUpi";
+import { paymentLabel } from "../paymentLabel";
+import { scheduleLabel } from "../schedule";
+
+const ACTIVE = ["placed", "preparing", "ready", "out_for_delivery"];
+const REFRESH_MS = 30000;
 
 export default function MyOrders() {
   const [orders, setOrders] = useState(null);
   const [error, setError] = useState(null);
   const [cancellingId, setCancellingId] = useState(null);
+  const [settings, setSettings] = useState(null);
 
   const load = () => api.getMyOrders().then((d) => setOrders(d.orders)).catch((e) => setError(e.message));
 
   useEffect(() => {
     load();
+    api.getSettings().then(setSettings).catch(() => {}); // the UPI pay card just doesn't show if this fails
   }, []);
+
+  // While something is in progress, refresh now and then so its status moves on its own.
+  const hasActive = orders?.some((o) => ACTIVE.includes(o.status));
+  useEffect(() => {
+    if (!hasActive) return;
+    const id = setInterval(load, REFRESH_MS);
+    return () => clearInterval(id);
+  }, [hasActive]);
 
   const handleCancel = async (order) => {
     if (!confirm(`Cancel order #${order.id}?`)) return;
@@ -55,11 +71,14 @@ export default function MyOrders() {
               <p className="order-items">
                 {o.items.map((it) => `${it.name}${it.qty > 1 ? ` x${it.qty}` : ""}${it.note ? ` — "${it.note}"` : ""}`).join(", ")}
                 {" · "}{o.channel.replace("_", "-")}
+                {scheduleLabel(o) ? ` · ${scheduleLabel(o)}` : o.channel !== "dine_in" ? " · ASAP" : ""}
+                {o.deliveryFee > 0 ? ` · incl. ₹${o.deliveryFee} delivery` : ""}
                 {o.riderName ? ` · Rider: ${o.riderName}` : ""}
               </p>
               <p className={`payment-line${o.paymentStatus === "paid" ? " payment-paid" : ""}`}>
-                {o.paymentStatus === "paid" ? "Paid" : `Pay on ${o.channel === "delivery" ? "delivery" : "pickup"}`}{o.paymentMethod ? ` · ${o.paymentMethod}` : ""}
+                {paymentLabel(o)}{o.paymentMethod ? ` · ${o.paymentMethod}` : ""}
               </p>
+              {o.status !== "cancelled" && o.paymentMethod !== "cash" && <PayWithUpi order={o} settings={settings} />}
               {o.status === "placed" && (
                 <button
                   onClick={() => handleCancel(o)}

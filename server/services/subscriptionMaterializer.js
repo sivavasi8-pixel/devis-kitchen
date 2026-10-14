@@ -206,7 +206,7 @@ async function materializeToday(sub, plan, allById, today) {
       "update subscription_meal_selections set order_id = $1 where subscription_id = $2 and meal_date = $3 and meal_slot = $4",
       [order.id, sub.id, today, slot]
     );
-    await adjustStockForItems(orderItems, "deduct");
+    await adjustStockForItems(orderItems, "deduct", undefined, order.id);
 
     push.notifyRoles(["owner", "staff"], {
       title: `Subscription order — ${slot}`,

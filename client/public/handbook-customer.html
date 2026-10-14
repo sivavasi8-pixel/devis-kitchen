@@ -95,21 +95,21 @@
 
   <main>
     <div class="role-intro">
-      <i class="ti ti-login" aria-hidden="true"></i>&nbsp; Browsing the menu doesn't need an account. To check out, <a href="/signup">create one</a> — just a name, email, and password — or <a href="/login">log in</a> if you already have one.
+      <i class="ti ti-login" aria-hidden="true"></i>&nbsp; Browsing the menu doesn't need an account. To check out, <a href="/signup">create one</a> (name, email, phone number, a password of at least 8 characters, and a 6-digit PIN) or <a href="/login">log in</a> if you already have one.
     </div>
 
     <div class="chapter">
       <div class="chapter-head"><i class="ti ti-shopping-bag" aria-hidden="true"></i><h3>Order online</h3></div>
       <div class="chapter-body">
-        <p>The main menu page — open to everyone, logged in or not.</p>
+        <p>The main menu page, open to everyone, logged in or not.</p>
         <ul>
           <li><strong>Search</strong> the whole menu by name, or browse by category chip (Mains, Breads, Starters, Desserts, Beverages, Custom order, and any others the kitchen has added).</li>
-          <li><strong>Today's Specials</strong> — a highlighted strip at the top, when the kitchen has anything featured that day. These clear automatically at midnight.</li>
+          <li><strong>Today's Specials</strong>: a highlighted strip at the top, when the kitchen has anything featured that day. These clear automatically at midnight.</li>
           <li>Tap the <strong>♥</strong> on any item to favorite it (saved on your device, not tied to your account).</li>
-          <li>Some items have a photo carousel — swipe or use the arrows to see extra photos.</li>
-          <li><strong>Custom order</strong> tab: for made-to-order items priced by weight (like "Biryani by the kg"). Enter the quantity in kg, optionally a protein/style, spice level, and a needed-by date — the price calculates automatically as you type.</li>
-          <li><strong>Your order panel</strong> (right side / bottom sheet on mobile): shows everything in your cart with any notes, and the running total.</li>
-          <li>Each item shows how long it'll take right under the price — <strong>"Ready now"</strong> or <strong>"~N min"</strong>.</li>
+          <li>Some items have a photo carousel. Swipe or use the arrows to see extra photos.</li>
+          <li><strong>Custom order</strong> tab: for made-to-order items priced by weight (like "Biryani by the kg"). Enter the quantity in kg, optionally a protein/style, spice level, and a needed-by date. The price calculates as you type, and the restaurant always re-checks it when you order.</li>
+          <li><strong>Your order panel</strong> (right side, or the bottom bar on mobile): everything in your cart with any notes, and the running total.</li>
+          <li>Each item shows how long it'll take right under the price: <strong>"Ready now"</strong> or <strong>"~N min"</strong>.</li>
         </ul>
       </div>
     </div>
@@ -117,27 +117,88 @@
     <div class="chapter">
       <div class="chapter-head"><i class="ti ti-truck-delivery" aria-hidden="true"></i><h3>Checking out</h3></div>
       <div class="chapter-body">
-        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>We cook fresh after you order — nothing is pre-made. Most items are ready quickly, but anything marked with a prep time will take a little longer, so please allow for it.</div>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>We cook fresh after you order. Nothing is pre-made, so items with a prep time will take a little longer.</div>
         <ol>
-          <li>Add items to your cart from the menu (or the Custom order form).</li>
-          <li>Choose how you're getting it: <strong>Delivery</strong> (needs an address, phone optional), <strong>Pickup</strong>, or <strong>Dine-in</strong> (needs a table number).</li>
-          <li>Pick a payment method: Cash, UPI, or Card.</li>
+          <li>Add items to your cart.</li>
+          <li>If you're not logged in, you'll see a <strong>Log in to place your order</strong> card instead of the checkout form. Your cart stays put while you log in or sign up.</li>
+          <li>Choose how you're getting it: <strong>Delivery</strong>, <strong>Pickup</strong> or <strong>Dine-in</strong> (dine-in asks for a table number).</li>
+          <li>For <strong>Delivery</strong>, pick a saved address or add a new one (type it, use your current location, drop a pin on the map, or paste a Google Maps link). Tick "save" to keep it for next time, and add a phone number for the rider.</li>
+          <li><strong>When do you want it?</strong> Choose <strong>As soon as possible</strong> (only while the restaurant is open) or <strong>Choose a time</strong> and pick a day and a time slot. If we're closed right now, ASAP is switched off and you book a slot instead.</li>
+          <li>Pick a payment method: Cash, UPI or Card.</li>
           <li>Click <strong>Checkout</strong>.</li>
         </ol>
-        <p>If you're not logged in yet, your cart stays exactly as it is — just log in or create an account, and you'll come right back to checkout.</p>
-        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>UPI and Card orders are treated as paid immediately. <strong>Cash</strong> orders stay "unpaid" in the system until the kitchen or your rider confirms payment when the order arrives.</div>
-        <p style="margin-top: 12px; margin-bottom: 0;">Once placed, you'll see an order confirmation with a link to your printable receipt, and a live tracker banner will follow your active order around the site until it's delivered.</p>
+        <p><strong>Delivery fee.</strong> The fee depends on how far your address is from the restaurant, and appears under your items before you order. Some distances have a minimum order, and a bigger order can make delivery free. If your address is too far away, checkout tells you. If we couldn't pinpoint your address, you'll see "estimated": choose your location on the map to get the exact fee.</p>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Every order starts as <strong>unpaid</strong>, whatever you choose. The restaurant marks it paid once they've confirmed the money. For <strong>Cash</strong>, you pay on delivery or pickup. For <strong>UPI or Card</strong>, see "Paying by UPI" below.</div>
+        <p style="margin-top: 12px; margin-bottom: 0;">Once placed, you'll see a confirmation with a link to your receipt, and a live tracker follows your active order around the site until it's done.</p>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-qrcode" aria-hidden="true"></i><h3>Paying by UPI</h3></div>
+      <div class="chapter-body">
+        <p>For an unpaid UPI or Card order, your order shows a <strong>Pay ₹… via UPI</strong> card (when the restaurant has set up its UPI ID).</p>
+        <ol>
+          <li>Scan the QR code with any UPI app, or tap <strong>Pay with UPI app</strong> on your phone. The amount is filled in for you.</li>
+          <li>After paying, tap <strong>Upload payment receipt</strong> and choose a screenshot of the confirmation.</li>
+          <li>The restaurant checks it and marks your order paid. You can replace the screenshot if you uploaded the wrong one.</li>
+        </ol>
+        <p style="margin-bottom:0">Your order isn't held up while it waits: the kitchen starts as normal.</p>
       </div>
     </div>
 
     <div class="chapter">
       <div class="chapter-head"><i class="ti ti-receipt" aria-hidden="true"></i><h3>My orders</h3></div>
       <div class="chapter-body">
-        <p>Your full order history, newest first — item list, channel, total, and live status for each.</p>
+        <p>Your full order history, newest first: items, type, when it's for, delivery fee, total, payment status and live status. It refreshes by itself every 30 seconds while an order is in progress.</p>
         <ul style="margin-bottom:0">
           <li>Click <strong>receipt</strong> on any order to view or print it.</li>
-          <li>You can <strong>cancel</strong> an order yourself, but only while it's still just "placed" — once the kitchen starts preparing it, you'll need to call the restaurant to cancel.</li>
+          <li>You can <strong>cancel</strong> an order yourself, but only while it's still "placed". Once the kitchen starts preparing it, please call the restaurant.</li>
         </ul>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-calendar" aria-hidden="true"></i><h3>Meal plans (subscribe &amp; save)</h3></div>
+      <div class="chapter-body">
+        <p>Open <strong>Meal Plans</strong> in the top bar. Instead of ordering each day, you pick what you'd like to eat and the restaurant cooks it for you every day of your plan. Anyone can look; you need an account to subscribe.</p>
+        <ol>
+          <li>Under <strong>Available plans</strong>, choose one. Each plan shows how long it runs (<strong>Daily, Weekly or Monthly</strong>), which meals it covers (<strong>Breakfast, Lunch, Dinner</strong>) and how many items you can pick per meal.</li>
+          <li>Use the meal tabs to choose items for each meal. A ✓ marks what you've picked, and the counter (like 1/2) shows your limit. Tap an item again to remove it.</li>
+          <li>Choose <strong>Delivery</strong> (with an address and optional phone) or <strong>Pickup</strong>, and a payment method.</li>
+          <li>The <strong>Your total</strong> box updates as you pick: price per day, times the days in the plan, any <strong>discount</strong> for longer plans, and a <strong>delivery fee per day</strong> for delivery plans.</li>
+          <li>Tap <strong>Subscribe &amp; pay</strong>.</li>
+        </ol>
+        <p><strong>My subscriptions</strong> (at the top of the page once you have one) shows each plan, what you picked, the amount per cycle and whether it's paid. You can <strong>Pause</strong>, <strong>Resume</strong> or <strong>Cancel</strong> it yourself at any time. A paused plan gets no daily orders.</p>
+        <ul>
+          <li><strong>Every day</strong> the kitchen automatically gets an order for your picks, so you don't have to order. These appear under <strong>My orders</strong> like any other order.</li>
+          <li>When a cycle ends, the plan <strong>renews itself</strong> for another cycle at the current prices. You'll get a notification, and the new cycle shows as unpaid until the restaurant marks it paid.</li>
+          <li>Your payment shows as <strong>Pay in person</strong> until the restaurant confirms it.</li>
+        </ul>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>To change what you've picked, cancel the plan and subscribe again with new items. Items and prices come from the menu, so a plan can only include regular, priced dishes that are in stock.</div>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-user" aria-hidden="true"></i><h3>My account</h3></div>
+      <div class="chapter-body">
+        <p>Open <strong>My account</strong> from the top bar (or the bottom bar on mobile).</p>
+        <ul style="margin-bottom:0">
+          <li><strong>Profile:</strong> change your name and phone number. Your email can't be changed here.</li>
+          <li><strong>Security:</strong> change your password, or your 6-digit PIN. Both need your current password first.</li>
+          <li><strong>Saved addresses:</strong> add, edit, delete, and choose which one is your default for delivery.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="chapter">
+      <div class="chapter-head"><i class="ti ti-key" aria-hidden="true"></i><h3>Forgot your password?</h3></div>
+      <div class="chapter-body">
+        <p>On the log in page, choose <strong>Forgot your password?</strong></p>
+        <ol>
+          <li>Enter your email, your <strong>6-digit PIN</strong> and a new password (at least 8 characters).</li>
+          <li>Forgotten your PIN too? Choose <strong>Request help from the store</strong> and enter your email. The restaurant is notified and will set a new PIN for you.</li>
+        </ol>
+        <div class="callout"><i class="ti ti-info-circle" aria-hidden="true"></i>Too many wrong tries in a row will pause logging in for about 15 minutes. Wait a little and try again.</div>
       </div>
     </div>
   </main>

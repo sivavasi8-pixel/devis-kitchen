@@ -1,4 +1,5 @@
 const staff = require("../data/staff");
+const users = require("../data/users");
 const asyncHandler = require("../middleware/asyncHandler");
 
 exports.getStaff = asyncHandler(async (req, res) => {
@@ -15,6 +16,14 @@ exports.createStaff = asyncHandler(async (req, res) => {
   if ((email && !password) || (!email && password)) {
     return res.status(400).json({ error: "email and password must be provided together, or not at all" });
   }
+  if (email) {
+    if (password.length < 8) return res.status(400).json({ error: "password must be at least 8 characters" });
+    // Checked before the roster row is created so a duplicate email can't leave
+    // an orphaned staff entry with no account behind it.
+    if (await users.findByEmail(email)) {
+      return res.status(409).json({ error: "An account with that email already exists" });
+    }
+  }
   const entry = await staff.create({ name, role, shift, isRider, email, password });
   res.status(201).json({ staff: entry });
 });
@@ -28,7 +37,16 @@ exports.updateStatus = asyncHandler(async (req, res) => {
   const { status } = req.body;
   const valid = ["clocked_in", "clocked_out", "on_break", "absent"];
   if (!valid.includes(status)) return res.status(400).json({ error: `status must be one of ${valid.join(", ")}` });
-  res.json({ staff: await staff.updateStatus(req.params.id, status) });
+  // Staff clock themselves in/out; only the owner can change someone else's status.
+  if (req.user.role === "staff") {
+    const me = await users.findById(req.user.id);
+    if (!me || me.staffId !== Number(req.params.id)) {
+      return res.status(403).json({ error: "You can only update your own status. Ask the owner to change others." });
+    }
+  }
+  const person = await staff.updateStatus(req.params.id, status);
+  if (!person) return res.status(404).json({ error: "Staff member not found" });
+  res.json({ staff: person });
 });
 
 exports.updateShift = asyncHandler(async (req, res) => {

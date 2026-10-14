@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import CustomerNav from "./components/CustomerNav";
 import AdminLayout from "./components/admin/AdminLayout";
 import ProtectedRoute from "./auth/ProtectedRoute";
@@ -18,6 +18,12 @@ import Orders from "./pages/Orders";
 import Rider from "./pages/Rider";
 import MealPlans from "./pages/MealPlans";
 import MealPlansAdmin from "./pages/MealPlansAdmin";
+import ResetPassword from "./pages/ResetPassword";
+import MyAccount from "./pages/MyAccount";
+import Customers from "./pages/Customers";
+import Settings from "./pages/Settings";
+import NotFound from "./pages/NotFound";
+import AdminAccount from "./pages/AdminAccount";
 
 export default function App() {
   return (
@@ -26,6 +32,9 @@ export default function App() {
           Browsing the menu stays public; Order.jsx itself gates checkout on
           being logged in as a customer. */}
       <Route element={<CartProvider><CustomerNav /></CartProvider>}>
+        {/* The menu is the storefront's front door: a shared link to the root URL
+            should not land on the owner/staff login. */}
+        <Route path="/" element={<Navigate to="/order" replace />} />
         <Route path="/order" element={<Order />} />
         <Route path="/meal-plans" element={<MealPlans />} />
         <Route
@@ -36,7 +45,16 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/my-account"
+          element={
+            <ProtectedRoute roles={["customer"]}>
+              <MyAccount />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/signup" element={<Signup />} />
       </Route>
 
@@ -48,11 +66,20 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/pos" element={<POS />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/staff" element={<Staff />} />
+        <Route path="/customers" element={<Customers />} />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute roles={["owner"]}>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/meal-plans-admin" element={<MealPlansAdmin />} />
         <Route
           path="/menu-admin"
@@ -85,6 +112,18 @@ export default function App() {
         <Route path="/rider" element={<Rider />} />
       </Route>
 
+      {/* Owner, staff and riders: change your own password. Same admin chrome as everything
+          else (AdminLayout swaps in the rider-only nav for riders). */}
+      <Route
+        element={
+          <ProtectedRoute roles={["owner", "staff", "rider"]}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/account" element={<AdminAccount />} />
+      </Route>
+
       {/* Any logged-in role — the backend enforces a customer can only fetch their own
           order. Standalone (no shell chrome): it's a print-friendly receipt, and both
           nav shells are hidden on print anyway. */}
@@ -96,6 +135,8 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

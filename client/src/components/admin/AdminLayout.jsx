@@ -8,17 +8,19 @@ import PushToggle from "../PushToggle";
 // staff never sees Menu/Reports, matching the real role gate on those routes.
 // Rider gets its own single-item nav (no dashboard/POS/etc — see riderNavItems).
 const allNavItems = [
-  { to: "/", label: "Dashboard", icon: "ti-layout-dashboard", end: true },
+  { to: "/dashboard", label: "Dashboard", icon: "ti-layout-dashboard", end: true },
   { to: "/pos", label: "POS", icon: "ti-cash-register" },
   { to: "/orders", label: "Orders", icon: "ti-clipboard-list" },
   { to: "/inventory", label: "Inventory", icon: "ti-package" },
   { to: "/staff", label: "Staff", icon: "ti-users" },
+  { to: "/customers", label: "Customers", icon: "ti-address-book" },
   // Not ownerOnly — staff can already view/pause/cancel subscribers via the
   // API; MealPlansPanel itself gates the owner-only "Meal Plans" sub-tab
   // (plan creation, discount tiers, delivery fee) internally.
   { to: "/meal-plans-admin", label: "Subscribers", icon: "ti-calendar" },
   { to: "/menu-admin", label: "Menu", icon: "ti-tools-kitchen-2", ownerOnly: true },
-  { to: "/reports", label: "Reports", icon: "ti-chart-bar", ownerOnly: true }
+  { to: "/reports", label: "Reports", icon: "ti-chart-bar", ownerOnly: true },
+  { to: "/settings", label: "Settings", icon: "ti-settings", ownerOnly: true }
 ];
 
 const riderNavItems = [{ to: "/rider", label: "My Deliveries", icon: "ti-moped", end: true }];
@@ -36,6 +38,7 @@ export default function AdminLayout() {
   const handbookHref = handbookHrefFor(user?.role);
 
   const handleLogout = () => {
+    if (!window.confirm("Log out of your account?")) return;
     logout();
     navigate("/login");
   };
@@ -64,6 +67,14 @@ export default function AdminLayout() {
         ))}
 
         <div className="admin-sidebar-footer">
+          <NavLink to="/account" className={({ isActive }) => `admin-nav-item${isActive ? " active" : ""}`}>
+            <i className="ti ti-user-circle" aria-hidden="true" />
+            <span>My account</span>
+          </NavLink>
+          <a href="/order" className="admin-nav-item">
+            <i className="ti ti-building-store" aria-hidden="true" />
+            <span>View storefront</span>
+          </a>
           <a href={handbookHref} target="_blank" rel="noopener noreferrer" className="admin-nav-item">
             <i className="ti ti-book" aria-hidden="true" />
             <span>Guide</span>
@@ -94,7 +105,9 @@ export default function AdminLayout() {
         .admin-sidebar {
           width: var(--a-sidebar-w); background: var(--a-sidebar); color: #cfd9d3;
           flex-shrink: 0; padding: 16px 10px; display: none; flex-direction: column;
-          position: fixed; top: 0; left: 0; height: 100vh; z-index: 25;
+          /* overflow-y: auto so Log out stays reachable (by scrolling the sidebar) on a short window
+             where the nav list plus footer are taller than the viewport. */
+          position: fixed; top: 0; left: 0; height: 100vh; z-index: 25; overflow-y: auto;
         }
         @media (min-width: 900px) { .admin-sidebar { display: flex; } }
 
@@ -167,6 +180,10 @@ function MobileTopbar({ navItems, onLogout }) {
               <span>{n.label}</span>
             </NavLink>
           ))}
+          <NavLink to="/account" className="admin-nav-item" onClick={() => setOpen(false)}>
+            <i className="ti ti-user-circle" aria-hidden="true" />
+            <span>My account</span>
+          </NavLink>
           <a href={handbookHrefFor(user?.role)} target="_blank" rel="noopener noreferrer" className="admin-nav-item">
             <i className="ti ti-book" aria-hidden="true" />
             <span>Guide</span>

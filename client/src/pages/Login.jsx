@@ -28,7 +28,7 @@ export default function Login() {
     try {
       const user = await login(email, password);
       const from = location.state?.from;
-      const roleHome = user.role === "customer" ? "/order" : user.role === "rider" ? "/rider" : "/";
+      const roleHome = user.role === "customer" ? "/order" : user.role === "rider" ? "/rider" : "/dashboard";
       navigate(from || roleHome);
     } catch (err) {
       setError(err.message);
@@ -81,6 +81,9 @@ export default function Login() {
 
       <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "16px" }}>
         New customer? <Link to="/signup" style={{ color: "var(--green)" }}>Create an account</Link>
+      </p>
+      <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: "6px" }}>
+        <Link to="/reset-password" style={{ color: "var(--green)" }}>Forgot your password?</Link>
       </p>
 
       {import.meta.env.DEV && (
