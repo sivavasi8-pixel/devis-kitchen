@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { api } from "../api";
 import { useAuth } from "../auth/AuthContext";
-import AddressPicker from "../components/AddressPicker";
+import AddressBook from "../components/AddressBook";
+import PushToggle from "../components/PushToggle";
 
 const PHONE_RE = /^[+\d][\d\s-]{6,19}$/;
 
@@ -197,7 +198,17 @@ export default function MyAccount() {
 
       <section className="acct-section">
         <h2 className="acct-section-title">Saved addresses</h2>
-        <AddressPicker onChange={() => {}} />
+        <AddressBook />
+      </section>
+
+      <section className="acct-section">
+        <h2 className="acct-section-title">Help &amp; notifications</h2>
+        <div className="acct-links">
+          <a href="/handbook-customer.html" target="_blank" rel="noopener noreferrer" className="acct-link">
+            <i className="ti ti-book" aria-hidden="true" /> <span>Guide: how ordering works</span>
+          </a>
+          <PushToggle className="acct-link" />
+        </div>
       </section>
 
       <style>{`
@@ -218,6 +229,13 @@ export default function MyAccount() {
           background: var(--green); color: var(--cream); font-weight: 700; font-size: 14px; cursor: pointer;
         }
         .acct-btn-sm { min-height: 38px; padding: 0 16px; font-size: 13px; }
+        .acct-links { display: flex; flex-direction: column; gap: 8px; }
+        .acct-link {
+          display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; border: 1px solid var(--border);
+          border-radius: 12px; background: var(--surface-1); color: var(--text-primary); font: 600 14px var(--font-body);
+          text-decoration: none; cursor: pointer; text-align: left; width: 100%; box-sizing: border-box;
+        }
+        .acct-link i { font-size: 18px; color: var(--green); }
         .acct-collapsible { border: 1px solid var(--border); border-radius: 12px; background: var(--surface-1); overflow: hidden; }
         .acct-collapsible-head {
           width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 16px;

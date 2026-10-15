@@ -11,9 +11,9 @@ export default function CustomerNav() {
   // give them a way back to their own console.
   const consoleLink =
     user?.role === "owner" || user?.role === "staff"
-      ? { to: "/dashboard", label: "Shop console", iconClass: "ti-layout-dashboard" }
+      ? { to: "/dashboard", label: "Shop console", tabLabel: "Console", iconClass: "ti-layout-dashboard" }
       : user?.role === "rider"
-        ? { to: "/rider", label: "My deliveries", iconClass: "ti-moped" }
+        ? { to: "/rider", label: "My deliveries", tabLabel: "Deliveries", iconClass: "ti-moped" }
         : null;
 
   const handleLogout = () => {
@@ -81,38 +81,37 @@ export default function CustomerNav() {
 
       <nav className="tabbar" aria-label="Primary">
         {customerTabs.map((tab) => (
-          <NavLink
-            key={tab.to}
-            to={tab.to}
-            className={({ isActive }) => `tabbar-item${isActive ? " active" : ""}`}
-          >
+          <NavLink key={tab.to} to={tab.to} className={({ isActive }) => `tabbar-item${isActive ? " active" : ""}`}>
             <span className="tabbar-icon-wrap">
               <i className={`ti ${tab.iconClass}`} aria-hidden="true" />
               {tab.to === "/order" && cartCount > 0 && <span className="tabbar-cart-badge">{cartCount}</span>}
             </span>
-            <span>{tab.label}</span>
+            <span className="tabbar-label">{tab.label}</span>
           </NavLink>
         ))}
         {consoleLink && (
-          <NavLink to={consoleLink.to} className="tabbar-item">
+          <NavLink to={consoleLink.to} className={({ isActive }) => `tabbar-item${isActive ? " active" : ""}`}>
             <span className="tabbar-icon-wrap"><i className={`ti ${consoleLink.iconClass}`} aria-hidden="true" /></span>
-            <span>{consoleLink.label}</span>
+            <span className="tabbar-label">{consoleLink.tabLabel}</span>
           </NavLink>
         )}
-        <a href="/handbook-customer.html" target="_blank" rel="noopener noreferrer" className="tabbar-item">
-          <i className="ti ti-book" aria-hidden="true" />
-          <span>Guide</span>
-        </a>
-        {user?.role === "customer" && <PushToggle className="tabbar-item" />}
+        {/* Customers find the Guide and notification switch on My account, which keeps this
+            bar to five even items on a phone. Everyone else keeps a Guide shortcut here. */}
+        {user?.role !== "customer" && (
+          <a href="/handbook-customer.html" target="_blank" rel="noopener noreferrer" className="tabbar-item">
+            <span className="tabbar-icon-wrap"><i className="ti ti-book" aria-hidden="true" /></span>
+            <span className="tabbar-label">Guide</span>
+          </a>
+        )}
         {user ? (
-          <button className="tabbar-item" onClick={handleLogout}>
-            <i className="ti ti-logout" aria-hidden="true" />
-            <span>Log out</span>
+          <button type="button" className="tabbar-item" onClick={handleLogout}>
+            <span className="tabbar-icon-wrap"><i className="ti ti-logout" aria-hidden="true" /></span>
+            <span className="tabbar-label">Log out</span>
           </button>
         ) : (
           <NavLink to="/login" className={({ isActive }) => `tabbar-item${isActive ? " active" : ""}`}>
-            <i className="ti ti-login" aria-hidden="true" />
-            <span>Log in</span>
+            <span className="tabbar-icon-wrap"><i className="ti ti-login" aria-hidden="true" /></span>
+            <span className="tabbar-label">Log in</span>
           </NavLink>
         )}
       </nav>
@@ -185,18 +184,22 @@ export default function CustomerNav() {
           background: var(--surface-1);
           border-top: 1px solid var(--border);
           display: flex;
-          overflow-x: auto;
+          align-items: stretch;
           z-index: 20;
+          padding-bottom: env(safe-area-inset-bottom, 0);
         }
+        /* Every item has the same structure (icon box + one-line label) so the row lines up
+           evenly whatever the screen width; flex: 1 1 0 gives each an equal share. */
         .tabbar-item {
-          flex: 1; display: flex; flex-direction: column; align-items: center;
+          flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center;
           justify-content: center; gap: 3px; text-decoration: none;
-          color: var(--text-muted); font-size: 11px; min-width: 56px;
-          border: none; background: none; padding: 6px 4px;
+          color: var(--text-muted); font-family: var(--font-body); font-size: 11px; font-weight: 500; line-height: 1.1;
+          border: none; background: none; padding: 6px 2px; cursor: pointer;
         }
-        .tabbar-item i { font-size: 20px; }
+        .tabbar-item i { font-size: 21px; line-height: 1; }
         .tabbar-item.active { color: var(--green); }
-        .tabbar-icon-wrap { position: relative; display: inline-flex; }
+        .tabbar-label { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tabbar-icon-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; height: 24px; }
         .tabbar-cart-badge {
           position: absolute; top: -4px; right: -8px; min-width: 14px; height: 14px; padding: 0 3px;
           background: var(--red); color: #fff; border-radius: 999px; font-size: 9px; font-weight: 700;
